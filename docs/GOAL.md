@@ -82,7 +82,7 @@ I work in this order so something flyable exists at every point. If time runs ou
 - Target: 30 fps at 720p on a mid-range Chromebook (integrated GPU), running the web build.
 - The web build is a core deliverable, not a stretch goal.
 - Test on a real low-end device (or the lowest-spec machine I can get) at the end of every build-order step, not just at the end.
-- Measure before optimizing: keep an FPS and frame-time counter in the HUD from step 1.
+- Measure before optimizing: keep an FPS and frame-time counter in the HUD from step 1. Only trust numbers from Release builds.
 - Expensive effects (surface noise, atmosphere) are baked or approximated; no per-pixel noise evaluation in the main render path if avoidable.
 - If a step breaks the budget, I simplify that step before moving on.
 
