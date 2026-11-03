@@ -25,6 +25,7 @@ set_target_properties(raylib PROPERTIES
 function(add_game_executable name)
     file(GLOB_RECURSE sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
     add_executable(${name} ${sources})
+    target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
     target_link_libraries(${name} PRIVATE raylib)
 
     if(MSVC)
