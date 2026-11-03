@@ -1,12 +1,12 @@
 # Parallax
 
-Parallax is a singleplayer, procedurally generated space game. The player flies a ship through a single star system built from a seed: a star, planets, moons, rings and an asteroid belt, rendered realistically. The same seed always produces the same system.
+Parallax is a singleplayer, procedurally generated space game. The player starts stranded on a planet, beside their crashed ship. Later stages open that up into a single star system built from a seed: a star, planets, moons, rings and an asteroid belt, rendered realistically. The same seed always produces the same system.
 
 This is also a learning project. Learning is a goal, not a side effect.
 
 ## Design principle
 
-The game doesn't tell the player what to be. There is no forced objective. Long term it's a sandbox where the player chooses: explore, build, survive, or something different. Stage 1 delivers only the foundation under that: flying through a believable world.
+The game doesn't tell the player what to be. There is no forced objective. Long term it's a sandbox where the player chooses: explore, build, survive, or something different. The crash is the setting, not a mission: repairing the ship is something the player may choose to do, never something they must. Stage 1 delivers only the foundation under that: standing in a believable world.
 
 ## Rules for finishing this project
 
@@ -16,59 +16,58 @@ The game doesn't tell the player what to be. There is no forced objective. Long 
 - Placeholder assets are fine until the finish line is met. Art polish is its own stage.
 - Asset budget: one ship, a few materials, no more than a day per asset.
 
-## Stage 1: Fly through a generated system (6-8 weeks)
+## Stage 1: The crash site (2-3 weeks)
 
 Finish line:
 
-> I can fly from the star to a planet and back, every planet looks convincingly real up close, and the same seed always gives the same system.
+> I can walk around a crashed ship on a lit alien surface under a believable sky.
 
-### What gets generated from the seed
+The crash site is its own scene. There is no way to leave it yet.
 
-- A star with physically plausible color and intensity
-- 3-8 planets of different types (rocky, gas giant, ice, ocean) with noise-driven surfaces, atmosphere rims and optional rings
-- 0-3 moons per planet
-- One asteroid belt
-- A starfield backdrop
+### What's in the scene
 
-### Flight
+- Flat ground, with noise-driven color
+- One crashed ship
+- A sun that lights the scene, from a hardcoded direction
+- A sky
 
-Six-degree-of-freedom Newtonian-style flight with a flight-assist toggle (damps velocity), plus a boost mode so interplanetary distances are practical.
+### Movement
+
+First-person walking at about 1.7 m eye height, on flat ground. No jumping, no gravity simulation, no flying.
 
 ### Camera
 
-First person, from the cockpit. The player's viewpoint is kept separate from the ship in the code, even though in Stage 1 it always sits in the cockpit. That way leaving the ship can be added later without rewriting the flight code.
+First person. The player's viewpoint is kept separate from the movement code, so it can sit in a cockpit later without a rewrite.
 
 ### Visual direction
 
-Realistic, shader-driven lighting from the star. Planet surfaces come from generated noise in the shader, with atmospheric scattering at the planet's edge.
+Realistic, shader-driven lighting from the sun. Fog or low hills hide the edge of the ground.
 
 ### Assets
 
-- Planets, star, rings, atmosphere: generated in shaders, no art files.
-- Starfield and backdrop: procedural.
-- Asteroids: noise-displaced spheres, instanced.
-- Ship: cockpit frame and HUD only. No exterior ship model in Stage 1.
-- HUD: flat shapes and a font.
+- Ground and sky: generated, no art files.
+- Ship: a placeholder made of a few stretched, tilted cubes. A real model is art polish and isn't needed for the finish line.
+- HUD: the FPS and frame-time counter only.
 - Textures that do need files are produced by reproducible scripts checked into the repo, not hand-painted.
 - Free CC0 sources (Kenney, Quaternius, Poly Haven, ambientCG) are fine; I check each license.
 
 ### Build order
 
-I work in this order so something flyable exists at every point. If time runs out, I cut from the bottom.
+I work in this order so something walkable exists at every point. If time runs out, I cut from the bottom.
 
-1. A lit sphere and a camera I can move around (1-week cap; this is also my 3D warm-up: matrices, depth testing, lighting)
-2. Flight controls
-3. One noise-shaded planet
-4. The star, and lighting from it
-5. The full seeded system: planets, moons, rings, belt
-6. Atmospheres
-7. Cockpit and HUD
+1. Flat ground, a first-person camera at eye height, and the frame-time counter
+2. The placeholder crashed ship
+3. A lit shader with a hardcoded sun (1-week cap for steps 1-3; this is also my 3D warm-up: matrices, depth testing, lighting)
+4. Noise on the ground color
+5. The sky
+6. Fog or low hills to hide the ground's edge
+7. Not walking through the ship: a simple bounding box
 8. Polish
 
 ### Learning goals
 
-- 3D fundamentals: model/view/projection matrices, depth testing, diffuse and specular lighting (learned during build step 1)
-- GLSL shader work: noise-based surfaces, atmospheric scattering, normal-mapped lighting, a glow or bloom effect for the star
+- 3D fundamentals: model/view/projection matrices, depth testing, diffuse and specular lighting (learned during build steps 1-3)
+- GLSL shader work: noise-based surfaces and a sky
 
 ## Tech
 
@@ -88,14 +87,15 @@ I work in this order so something flyable exists at every point. If time runs ou
 
 ## Out of scope for Stage 1
 
-Landing, leaving the ship, surface terrain, building, survival, crafting, combat, resources, creatures, saving, multiple systems, multiplayer. All parked in VISION.md.
+Flying, leaving the planet, the seeded star system, curved or chunked terrain, repairing the ship, building, survival, crafting, combat, resources, creatures, saving, multiple systems, multiplayer. All parked in VISION.md.
 
 ## Later stages (not committed)
 
-- Stage 2: richer planets, better atmospheres, cloud layers
-- Stage 3: leaving the ship (exterior model, spacewalk with no gravity)
-- Stage 4: land on one planet using chunked cube-sphere terrain (reuse code from sandboxNetwork). Learning goals: chunking, LOD, large-world precision.
-- Stage 5+: the sandbox layer, one activity at a time, each as its own finishable stage
+- Stage 2: fly through a generated system (6-8 weeks; plan in VISION.md). Its own scene, not yet connected to the crash site.
+- Stage 3: richer planets, better atmospheres, cloud layers
+- Stage 4: leaving the ship in space (exterior model, spacewalk with no gravity)
+- Stage 5: connect the ground to space: land on one planet using chunked cube-sphere terrain (reuse code from sandboxNetwork). Learning goals: chunking, LOD, large-world precision.
+- Stage 6+: the sandbox layer, one activity at a time, each as its own finishable stage
 
 ## Definition of done for the whole project
 
