@@ -7,9 +7,9 @@
 #include "Input/inputState.hpp"
 
 class InputSource {
- public:
+public:
   virtual ~InputSource() = default;
-  virtual void poll(InputState&) = 0;
+  virtual void poll(InputState &) = 0;
   virtual void setMouseLook(bool) = 0;
   virtual void draw() {};
   virtual void drawCursor() {};

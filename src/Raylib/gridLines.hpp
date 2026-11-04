@@ -2,7 +2,7 @@
 #include <raylib.h>
 
 inline Mesh GenMeshGridLines(int slices, float spacing) {
-  Mesh mesh = {0};
+  Mesh mesh{};
 
   // Each slice adds 2 lines (one parallel to X, one parallel to Z)
   // Plus 2 final bounding lines. Total lines = (slices + 1) * 2
