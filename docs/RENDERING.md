@@ -25,7 +25,7 @@ Real distances will jitter visibly and won't fit a usable depth range. Not solve
 
 No `#ifdef`s in rendering code. raylib already hides the platform, so the renderer makes the same calls on both.
 
-- Shader folder: `TextFormat("shaders/glsl%i/lit.fs", GLSL_VERSION)`.
+- Shader folder: `TextFormat("assets/shaders/glsl%i/lit.fs", GLSL_VERSION)`.
 - Feature limits on GLSL 100: `if constexpr (GLSL_VERSION == 100)`, when both branches compile on both platforms.
 - Platform-only code, such as the main loop if I drop `-sASYNCIFY`: `src/platform.h`, with `src/platform/native.cpp` and `src/platform/web.cpp`. CMake compiles one of them per build. Add this when the main loop has to split, not before.
 

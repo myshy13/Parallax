@@ -5,3 +5,5 @@ build-web/
 .idea/
 .vs/
 .DS_Store
+
+context.md
