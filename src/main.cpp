@@ -1,20 +1,9 @@
-#include "raylib.h"
+#include "Engine/engine.hpp"
+#include <raylib.h>
 
 int main() {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(800, 450, "Parallax");
-#ifndef __EMSCRIPTEN__
-    // Relative paths resolve against the copied shaders/ and assets/, wherever this was launched from.
-    ChangeDirectory(GetApplicationDirectory());
-#endif
-    SetTargetFPS(60);
+  Engine engine({1280, 720, "Parallax", 0, 1.0f / 60,
+                 FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT});
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(WHITE);
-        DrawText("hello", 20, 20, 40, BLACK);
-        EndDrawing();
-    }
-
-    CloseWindow();
+  engine.run();
 }
