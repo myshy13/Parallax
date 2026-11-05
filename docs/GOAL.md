@@ -33,7 +33,7 @@ The crash site is its own scene. There is no way to leave it yet.
 
 ### Movement
 
-First-person walking at about 1.7 m eye height, on flat ground. No jumping, no gravity simulation, no flying.
+First-person walking at about 1.2 m eye height, on flat ground. No jumping, no gravity simulation, no flying.
 
 ### Camera
 
