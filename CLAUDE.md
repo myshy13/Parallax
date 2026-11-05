@@ -76,6 +76,7 @@ Do not do any code unless you have concrete evidence that they already would kno
 - Every shader exists in both `assets/shaders/glsl330/` and `assets/shaders/glsl100/`, loaded through `GLSL_VERSION`.
 - `constexpr` constants over `#define`; no `static` functions in headers
   (`inline` or `constexpr` instead).
+- When a value is repeated, move it to a new `constexpr` variable.
 - Don't delete an explanatory comment to satisfy "one line" — shorten it.
 - Formatting wise, the creator is always correct
 
