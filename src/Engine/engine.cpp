@@ -21,6 +21,8 @@ Window::Window(const EngineConfig &conf) {
   SetWindowSize(width, height);
 
   SetWindowPosition(0, 0);
+
+  SetExitKey(KEY_NULL);
 }
 
 Engine::Engine(const EngineConfig &conf)
@@ -31,12 +33,12 @@ Engine::Engine(const EngineConfig &conf)
 }
 
 void Engine::run() {
-
   DisableCursor();
 
   while (!WindowShouldClose()) {
-    // ==== update ==== //
     float dt = GetFrameTime();
+    // ==== update ==== //
+    input.update();
     player.update(dt, camera);
 
     // ==== upload ==== //

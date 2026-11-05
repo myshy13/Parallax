@@ -49,7 +49,7 @@ What raylib does:
 - `DrawMesh` and `DrawModel` are one draw call each.
 - `DrawMeshInstanced` draws one mesh many times in a single call.
 
-The crash site only has a few objects, so nothing needs this in Stage 1. The asteroid belt in Stage 2 is the one place I expect to need it. The web build relies on `GL_ANGLE_instanced_arrays` for it, and the shader must read the per-instance transform as a vertex attribute. Not yet tested on the web: check it on the low-end device when the belt gets built.
+`Renderer::flush()` draws every batch with `DrawMeshInstanced`, even a single mesh, so every material it draws needs a shader that reads the per-instance transform as a vertex attribute (`instanceTransform`, set on `locs[SHADER_LOC_MATRIX_MODEL]`). The web build relies on `GL_ANGLE_instanced_arrays` for it. Not yet tested on the web: check it on the low-end device.
 
 ## When it gets slow
 

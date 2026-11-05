@@ -16,9 +16,17 @@ struct Batch {
 
 class Renderer {
 public:
+  Renderer(); // initialises the shader
+  ~Renderer();
+
   void submit(const DrawCommand &command) { queue.push_back(command); }
   void flush();
 
+  const Shader &getShader() const { return shader; }
+
 private:
   std::vector<DrawCommand> queue{};
+
+  Shader shader; // later todo: move to a dedicated lighting class that
+                 // Renderer owns
 };
