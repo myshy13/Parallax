@@ -7,51 +7,47 @@
 #include "Input/inputSource.hpp"
 #include "Input/inputState.hpp"
 
-constexpr float SCROLL_SENSITIVITY = 1.5f;
-
-// ==== binds ==== //
-namespace {
-
-struct Bind {
-  bool mouse; // true: a mouse button, false: a key
-  int code;
-};
-
-// One row per Action, in enum order (the static_assert catches a missing row,
-// not a swapped one).
-constexpr Bind BINDS[] = {
-    {true, MOUSE_BUTTON_LEFT},  // Shoot
-    {false, KEY_SPACE},         // Jump
-    {false, KEY_LEFT_SHIFT},    // Sneak
-    {true, MOUSE_BUTTON_RIGHT}, // Place
-    {false, KEY_ESCAPE},        // Pause
-    {false, KEY_T},             // Openchat
-    {false, KEY_SLASH},         // OpenChatCommands
-    {false, KEY_TAB},           // TabKills
-    {true, MOUSE_BUTTON_LEFT},  // Click
-    {false, KEY_ESCAPE},        // Exit
-#ifdef __EMSCRIPTEN__
-    {false, KEY_K}, // OpenDebug (browsers keep F3 for find)
-#else
-    {false, KEY_F3}, // OpenDebug
-#endif
-    {false, KEY_F4},   // Show chunk borders
-    {false, KEY_F5},   // ShowCollision
-    {false, KEY_F7},   // ChangeClipping
-    {false, KEY_R},    // Reconnect
-    {false, KEY_C},    // Zoom
-    {false, KEY_NULL}, // DownHotbarSlot (gamepad only)
-    {false, KEY_NULL}, // UpHotbarSlot (gamepad only)
-
-    {false, KEY_F8}, // OpenAdminPanel
-};
-
-static_assert(std::size(BINDS) == static_cast<size_t>(Action::Count),
-              "one bind per Action");
-
-} // namespace
-
 class InputKbm : public InputSource {
+  static constexpr float SCROLL_SENSITIVITY = 1.5f;
+
+  // ==== binds ==== //
+  struct Bind {
+    bool mouse; // true: a mouse button, false: a key
+    int code;
+  };
+
+  // One row per Action, in enum order (the static_assert catches a missing
+  // row, not a swapped one).
+  static constexpr Bind BINDS[] = {
+      {true, MOUSE_BUTTON_LEFT},  // Shoot
+      {false, KEY_SPACE},         // Jump
+      {false, KEY_LEFT_SHIFT},    // Sneak
+      {true, MOUSE_BUTTON_RIGHT}, // Place
+      {false, KEY_ESCAPE},        // Pause
+      {false, KEY_T},             // Openchat
+      {false, KEY_SLASH},         // OpenChatCommands
+      {false, KEY_TAB},           // TabKills
+      {true, MOUSE_BUTTON_LEFT},  // Click
+      {false, KEY_ESCAPE},        // Exit
+#ifdef __EMSCRIPTEN__
+      {false, KEY_K}, // OpenDebug (browsers keep F3 for find)
+#else
+      {false, KEY_F3}, // OpenDebug
+#endif
+      {false, KEY_F4},   // Show chunk borders
+      {false, KEY_F5},   // ShowCollision
+      {false, KEY_F7},   // ChangeClipping
+      {false, KEY_R},    // Reconnect
+      {false, KEY_C},    // Zoom
+      {false, KEY_NULL}, // DownHotbarSlot (gamepad only)
+      {false, KEY_NULL}, // UpHotbarSlot (gamepad only)
+
+      {false, KEY_F8}, // OpenAdminPanel
+  };
+
+  static_assert(std::size(BINDS) == static_cast<size_t>(Action::Count),
+                "one bind per Action");
+
   MouseCursor pendingCursor = MOUSE_CURSOR_DEFAULT;
   bool styleChanged;
 
