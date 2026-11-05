@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Assets/assets.hpp"
+#include "Debug/debug.hpp"
 #include "Input/input.hpp"
 #include "Player/player.hpp"
 #include "Renderer/renderer.hpp"
@@ -42,6 +43,8 @@ private:
   Assets assets;
   Renderer renderer;
   Player player;
+
+  Debug debug;
 
   Input input;
 

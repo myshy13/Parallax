@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "Debug/debug.hpp"
 #include "Input/inputSource.hpp"
 #include "Player/player.hpp"
 #include "Renderer/renderer.hpp"
@@ -26,7 +27,7 @@ Window::Window(const EngineConfig &conf) {
 }
 
 Engine::Engine(const EngineConfig &conf)
-    : window(conf), renderer(), player(renderer, assets, input),
+    : window(conf), renderer(), player(renderer, assets, input), debug(player),
       input(makeInputSource()) {
   camera = {
       {10.0f, 10.0f, 10.0f}, {0, 0, 0}, {0, 1, 0}, 90.0f, CAMERA_PERSPECTIVE};
@@ -40,6 +41,7 @@ void Engine::run() {
     // ==== update ==== //
     input.update();
     player.update(dt, camera);
+    debug.update();
 
     // ==== upload ==== //
     player.draw();
@@ -53,6 +55,8 @@ void Engine::run() {
     renderer.flush();
 
     EndMode3D();
+    // ==== overlays ==== //
+    debug.drawOverlays();
     EndDrawing();
   }
 }

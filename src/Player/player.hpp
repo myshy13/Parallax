@@ -32,4 +32,6 @@ public:
   Player(Renderer &renderer, Assets &assets, Input &input);
   void update(float dt, Camera &camera);
   void draw();
+
+  const Vector3 &getVel() const { return vel; };
 };
