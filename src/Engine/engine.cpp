@@ -52,7 +52,8 @@ void Engine::run() {
     float dt = GetFrameTime();
     // ==== update ==== //
     input.update();
-    player.update(dt, camera);
+    player.update(dt);
+    player.getViewpoint().applyTo(camera);
     debug.update();
 
     // ==== upload ==== //

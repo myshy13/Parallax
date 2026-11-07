@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Assets/assets.hpp"
+#include "Camera/viewpoint.hpp"
 #include "Input/input.hpp"
 #include "Renderer/renderer.hpp"
 #include <raylib.h>
 #include <raymath.h>
 
-// Player handles movement and camera
+// Player handles movement and provides a viewpoint
 class Player {
 private:
   // radians per look unit
@@ -30,7 +31,8 @@ private:
 
 public:
   Player(Renderer &renderer, Assets &assets, Input &input);
-  void update(float dt, Camera &camera);
+  void update(float dt);
+  Viewpoint getViewpoint() const;
   void draw();
 
   const Vector3 &getVel() const { return vel; };

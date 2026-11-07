@@ -30,7 +30,18 @@ void Player::draw() {
                               transformMatrix});
 }
 
-void Player::update(float dt, Camera &camera) {
+Viewpoint Player::getViewpoint() const {
+  // Pitch applies first, then yaw; the other order makes the camera roll.
+  Quaternion viewRotation = QuaternionMultiply(
+      transform.rotation, QuaternionFromAxisAngle({1.0f, 0.0f, 0.0f}, pitch));
+
+  Vector3 head = Vector3Add(transform.translation,
+                            {0.0f, transform.scale.y - EYE_DROP, 0.0f});
+
+  return Viewpoint{head, viewRotation};
+}
+
+void Player::update(float dt) {
   // No dt here: a mouse delta is already the movement for this frame.
   Vector2 look = input.getLook();
   yaw -= look.x * LOOK_SENSITIVITY;
@@ -39,8 +50,7 @@ void Player::update(float dt, Camera &camera) {
   // The body only yaws, so the cube doesn't tilt when looking up.
   transform.rotation = QuaternionFromAxisAngle({0.0f, 1.0f, 0.0f}, yaw);
 
-  Vector3 lookForward =
-      Vector3RotateByQuaternion({0.0f, 0.0f, -1.0f}, transform.rotation);
+  Vector3 lookForward = Vector3RotateByQuaternion(FORWARD, transform.rotation);
 
   Vector3 moveForward = lookForward;
   moveForward.y = 0.0f;
@@ -70,15 +80,4 @@ void Player::update(float dt, Camera &camera) {
   vel.z = vel.z * damping + moveDir.z * TOP_SPEED * (1.0f - damping);
 
   transform.translation += vel * dt;
-
-  Vector3 head = Vector3Add(transform.translation,
-                            {0.0f, transform.scale.y - EYE_DROP, 0.0f});
-  camera.position = head;
-
-  // Pitch applies first, then yaw; the other order makes the camera roll.
-  Quaternion viewRotation = QuaternionMultiply(
-      transform.rotation, QuaternionFromAxisAngle({1.0f, 0.0f, 0.0f}, pitch));
-
-  camera.target = Vector3Add(
-      head, Vector3RotateByQuaternion({0.0f, 0.0f, -1.0f}, viewRotation));
 }
