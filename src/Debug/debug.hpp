@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Player/player.hpp"
+#include <deque>
 #include <raylib.h>
+
+constexpr int AVERAGE_FRAMETIME_COUNT = 30;
 
 class Debug {
 private:
@@ -10,8 +13,10 @@ private:
 
   bool enabled{false};
 
+  std::deque<float> lastFrametimes = {}; // last dts
+
 public:
   Debug(const Player &player);
-  void drawOverlays();
+  void drawOverlays(float dt);
   void update();
 };
