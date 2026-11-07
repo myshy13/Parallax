@@ -4,23 +4,35 @@
 #include <raymath.h>
 #include <vector>
 
+Shader Renderer::loadInstancedShader(const char *name) {
+  const char *vsPath =
+      TextFormat("assets/shaders/glsl%i/%s/%s.vs", GLSL_VERSION, name, name);
+  const char *fsPath =
+      TextFormat("assets/shaders/glsl%i/%s/%s.fs", GLSL_VERSION, name, name);
+  Shader s = LoadShader(vsPath, fsPath);
+
+  s.locs[SHADER_LOC_MATRIX_MODEL] =
+      GetShaderLocationAttrib(s, "instanceTransform");
+  if (s.locs[SHADER_LOC_MATRIX_MODEL] == -1) {
+    TraceLog(LOG_ERROR, "Shader %s location = -1", name);
+  }
+  return s;
+}
+
 Renderer::Renderer() {
   static_assert(GLSL_VERSION == 330 || GLSL_VERSION == 100,
                 "Invalid glsl version");
-  const char *vsPath =
-      TextFormat("assets/shaders/glsl%i/shader.vs", GLSL_VERSION);
-  const char *fsPath =
-      TextFormat("assets/shaders/glsl%i/shader.fs", GLSL_VERSION);
-  shader = LoadShader(vsPath, fsPath);
 
-  shader.locs[SHADER_LOC_MATRIX_MODEL] =
-      GetShaderLocationAttrib(shader, "instanceTransform");
-  if (shader.locs[SHADER_LOC_MATRIX_MODEL] == -1) {
-    TraceLog(LOG_ERROR, "Shader location = -1");
-  }
+  // main shader
+  shader = loadInstancedShader("shader");
+  // ground shader
+  groundShader = loadInstancedShader("ground");
 }
 
-Renderer::~Renderer() { UnloadShader(shader); }
+Renderer::~Renderer() {
+  UnloadShader(shader);
+  UnloadShader(groundShader);
+}
 
 void Renderer::flush() {
   std::vector<Batch> batches;

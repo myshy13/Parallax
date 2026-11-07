@@ -31,6 +31,7 @@ struct Window {
 class Engine {
 public:
   explicit Engine(const EngineConfig &conf);
+  ~Engine();
 
   // copy protection
   Engine(const Engine &) = delete;
@@ -39,14 +40,16 @@ public:
   void run();
 
 private:
+  static constexpr float GROUND_PLANE_SIZE = 120.0f;
+
   Window window; // must stay first
   Assets assets;
   Renderer renderer;
-  Player player;
 
   Debug debug;
+  Player player;
+  Model groundPlane;
 
   Input input;
-
   Camera3D camera;
 };

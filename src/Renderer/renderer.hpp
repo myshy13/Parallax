@@ -23,10 +23,13 @@ public:
   void flush();
 
   const Shader &getShader() const { return shader; }
+  const Shader &getGroundShader() const { return groundShader; }
 
 private:
   std::vector<DrawCommand> queue{};
 
-  Shader shader; // later todo: move to a dedicated lighting class that
-                 // Renderer owns
+  Shader shader;       // todo: move to dedicated lighting class
+  Shader groundShader; // makes gridlines
+
+  Shader loadInstancedShader(const char *name);
 };

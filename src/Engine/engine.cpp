@@ -1,9 +1,11 @@
 #include "engine.hpp"
 #include "Debug/debug.hpp"
 #include "Input/inputSource.hpp"
+#include "Input/inputState.hpp"
 #include "Player/player.hpp"
 #include "Renderer/renderer.hpp"
 #include <raylib.h>
+#include <raymath.h>
 
 Window::Window(const EngineConfig &conf) {
   SetConfigFlags(conf.flags);
@@ -27,16 +29,26 @@ Window::Window(const EngineConfig &conf) {
 }
 
 Engine::Engine(const EngineConfig &conf)
-    : window(conf), renderer(), player(renderer, assets, input), debug(player),
+    : window(conf), renderer(), debug(player), player(renderer, assets, input),
       input(makeInputSource()) {
   camera = {
-      {10.0f, 10.0f, 10.0f}, {0, 0, 0}, {0, 1, 0}, 90.0f, CAMERA_PERSPECTIVE};
+      {10.0f, 10.0f, 10.0f}, {0, 0, 0}, {0, 1, 0}, 100.0f, CAMERA_PERSPECTIVE};
+
+  Mesh groundPlaneMesh =
+      GenMeshPlane(GROUND_PLANE_SIZE, GROUND_PLANE_SIZE, 1, 1);
+  groundPlane = LoadModelFromMesh(groundPlaneMesh);
+  groundPlane.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = WHITE;
+  groundPlane.materials[0].shader = renderer.getGroundShader();
 }
+
+Engine::~Engine() { UnloadModel(groundPlane); }
 
 void Engine::run() {
   DisableCursor();
 
   while (!WindowShouldClose()) {
+    if (input.pressed(Action::Click) && !IsCursorHidden())
+      DisableCursor();
     float dt = GetFrameTime();
     // ==== update ==== //
     input.update();
@@ -51,12 +63,13 @@ void Engine::run() {
     ClearBackground(BLACK);
     BeginMode3D(camera);
 
-    DrawGrid(40, 1.0f);
+    renderer.submit(DrawCommand{&groundPlane.meshes[0],
+                                &groundPlane.materials[0], MatrixIdentity()});
     renderer.flush();
 
     EndMode3D();
     // ==== overlays ==== //
-    debug.drawOverlays();
+    debug.drawOverlays(dt);
     EndDrawing();
   }
 }

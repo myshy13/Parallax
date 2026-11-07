@@ -12,5 +12,5 @@ varying vec2 fragTexCoord;
 
 void main() {
   fragTexCoord = vertexTexCoord;
-  gl_Position = mvp * instanceTransform * vec4(vertexPosition, 1.0);
+  gl_Position  = mvp * instanceTransform * vec4(vertexPosition, 1.0);
 }
