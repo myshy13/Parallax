@@ -12,7 +12,8 @@ The game doesn't tell the player what to be. There is no forced objective. Long 
 
 - Every stage has a one-sentence finish line and a time box.
 - If a time box runs out, I shrink the scope. I do not move the deadline.
-- Anything not needed for the current finish line goes into VISION.md.
+- This file sets direction and limits, not details. Tuning values, small features and how something is built are decided in the moment, as long as they serve the finish line and fit the time box and the performance budget.
+- Anything that doesn't serve the current finish line goes into VISION.md.
 - Placeholder assets are fine until the finish line is met. Art polish is its own stage.
 - Asset budget: one ship, a few materials, no more than a day per asset.
 
@@ -26,62 +27,62 @@ The crash site is its own scene. There is no way to leave it yet.
 
 ### What's in the scene
 
-- Flat ground, with noise-driven color
+- Ground, coloured by noise
 - One crashed ship
-- A sun that lights the scene, from a hardcoded direction
+- A sun that lights the scene
 - A sky
+- Something that hides the edge of the ground (fog, low hills or similar)
 
-### Movement
+### Player
 
-First-person walking at about 1.2 m eye height, on flat ground. No jumping, no gravity simulation, no flying.
+First person, on foot: walking, looking around and jumping. Gravity is a value, not a hardcoded Earth constant, so the alien world can feel different. Feel (speed, eye height, jump height, gravity strength) is tuned in play. No flying.
 
-### Camera
-
-First person. The player's viewpoint is kept separate from the movement code, so it can sit in a cockpit later without a rewrite.
+The player's viewpoint is kept separate from the movement code, so it can sit in a cockpit later without a rewrite.
 
 ### Visual direction
 
-Realistic, shader-driven lighting from the sun. Fog or low hills hide the edge of the ground.
+Realistic, shader-driven lighting from the sun.
 
 ### Assets
 
 - Ground and sky: generated, no art files.
-- Ship: a placeholder made of a few stretched, tilted cubes. A real model is art polish and isn't needed for the finish line.
-- HUD: the FPS and frame-time counter only.
+- Ship: a placeholder (e.g. a few stretched, tilted cubes). A real model is art polish.
+- HUD: debug information only (FPS and frame time at minimum).
 - Textures that do need files are produced by reproducible scripts checked into the repo, not hand-painted.
 - Free CC0 sources (Kenney, Quaternius, Poly Haven, ambientCG) are fine; I check each license.
 
 ### Build order
 
-I work in this order so something walkable exists at every point. If time runs out, I cut from the bottom.
+Something walkable exists at every point. The order is a guide: a small piece can go in early when it fits the work at hand. If time runs out, I cut from the bottom.
 
-1. Flat ground, a first-person camera at eye height, and the frame-time counter
-2. The placeholder crashed ship
-3. A lit shader with a hardcoded sun (1-week cap for steps 1-3; this is also my 3D warm-up: matrices, depth testing, lighting)
-4. Noise on the ground color
+1. Ground, a first-person camera and the frame-time counter
+2. The placeholder ship
+3. Lighting from the sun (1-week cap for steps 1-3; this is also my 3D warm-up: matrices, depth testing, lighting)
+4. Noise on the ground colour
 5. The sky
-6. Fog or low hills to hide the ground's edge
-7. Not walking through the ship: a simple bounding box
-8. Polish
+6. Hiding the ground's edge
+7. Not walking through the ship
+8. Jumping and gravity
+9. Polish
 
 ### Learning goals
 
 - 3D fundamentals: model/view/projection matrices, depth testing, diffuse and specular lighting (learned during build steps 1-3)
 - GLSL shader work: noise-based surfaces and a sky
+- Simple physics: velocity, acceleration and a fixed timestep
 
 ## Tech
 
 - C++20, raylib 5.5, CMake
 - Custom shaders; rlgl only where raylib doesn't expose what's needed
-- Emscripten web build is a stretch goal
 - One star system per seed. No switching systems.
 
 ### Performance budget
 
 - Target: 30 fps at 720p on a mid-range Chromebook (integrated GPU), running the web build.
-- The web build is a core deliverable, not a stretch goal.
+- The web build is a core deliverable.
 - Test on a real low-end device (or the lowest-spec machine I can get) at the end of every build-order step, not just at the end.
-- Measure before optimizing: keep an FPS and frame-time counter in the HUD from step 1. Only trust numbers from Release builds.
+- Measure before optimising: keep an FPS and frame-time counter in the HUD from step 1. Only trust numbers from Release builds.
 - Expensive effects (surface noise, atmosphere) are baked or approximated; no per-pixel noise evaluation in the main render path if avoidable.
 - If a step breaks the budget, I simplify that step before moving on.
 
