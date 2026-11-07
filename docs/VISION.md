@@ -66,6 +66,7 @@ GLSL shader work: atmospheric scattering, normal-mapped lighting, a glow or bloo
 - Reference frame handling (the player moves relative to the drifting ship)
 - Re-entering the ship
 - Later: walking anywhere beyond the flat crash site (needs landing terrain and gravity)
+- Gravity per planet, from the seed (mass and radius); Stage 1 only has a tunable value
 
 ### Worlds
 
