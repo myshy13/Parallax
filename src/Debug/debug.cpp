@@ -1,14 +1,16 @@
 #include "debug.hpp"
+#include "Input/inputState.hpp"
 #include <deque>
 #include <numeric>
 #include <raylib.h>
 #include <raymath.h>
 
-Debug::Debug(const Player &player) : player(player) {}
+Debug::Debug(const Player &player, const Input &input)
+    : player(player), input(input) {}
 
 void Debug::update() {
   speed = Vector3Length(player.getVel());
-  if (IsKeyPressed(KEY_K))
+  if (input.pressed(Action::OpenDebug))
     enabled = !enabled;
 };
 

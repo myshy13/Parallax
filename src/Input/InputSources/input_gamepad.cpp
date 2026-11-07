@@ -22,26 +22,11 @@ private:
     GamepadButton button;
   };
 
-  // Draft layout (Xbox names). An action can sit on several buttons, a button
-  // on several actions. Unbound: chat, commands, debug, chunk borders,
-  // collision, clipping, reconnect (no keyboard on the TV).
+  // Xbox names; an action can sit on several buttons, and a button on several actions
   static constexpr Bind BINDS[] = {
-      {Action::Shoot, GAMEPAD_BUTTON_RIGHT_TRIGGER_2},         // RT
-      {Action::Place, GAMEPAD_BUTTON_LEFT_TRIGGER_2},          // LT
-      {Action::Jump, GAMEPAD_BUTTON_RIGHT_FACE_DOWN},          // A
-      {Action::Sneak, GAMEPAD_BUTTON_RIGHT_FACE_LEFT},         // X
-      {Action::Pause, GAMEPAD_BUTTON_MIDDLE_RIGHT},            // Menu
-      {Action::TabKills, GAMEPAD_BUTTON_RIGHT_FACE_UP},        // Y
-      {Action::Zoom, GAMEPAD_BUTTON_RIGHT_THUMB},              // R3
-      {Action::Click, GAMEPAD_BUTTON_RIGHT_FACE_DOWN},         // A: menus only
-      {Action::DownHotbarSlot, GAMEPAD_BUTTON_LEFT_TRIGGER_1}, // LB
-      {Action::UpHotbarSlot, GAMEPAD_BUTTON_RIGHT_TRIGGER_1},  // RB
-      {Action::OpenDebug, GAMEPAD_BUTTON_LEFT_FACE_DOWN},      // Left DPad down
-      {Action::ShowCollision, GAMEPAD_BUTTON_LEFT_FACE_LEFT},  // Left DPad Left
-      {Action::Openchat, GAMEPAD_BUTTON_LEFT_FACE_RIGHT},      // Left DPad Right
-      {Action::Reconnect, GAMEPAD_BUTTON_LEFT_FACE_UP},        // Left DPad Up
-      {Action::Exit, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT},         // B
-      {Action::OpenAdminPanel, GAMEPAD_BUTTON_MIDDLE_LEFT},    // View
+      {Action::Jump, GAMEPAD_BUTTON_RIGHT_FACE_DOWN},     // A
+      {Action::Click, GAMEPAD_BUTTON_RIGHT_FACE_DOWN},    // A: menus only
+      {Action::OpenDebug, GAMEPAD_BUTTON_LEFT_FACE_DOWN}, // Left DPad down
   };
 
   Vector2 cursor{0, 0};

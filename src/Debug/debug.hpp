@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Input/input.hpp"
 #include "Player/player.hpp"
 #include <deque>
 #include <raylib.h>
@@ -15,8 +16,10 @@ private:
 
   std::deque<float> lastFrametimes = {}; // last dts
 
+  const Input &input;
+
 public:
-  Debug(const Player &player);
+  Debug(const Player &player, const Input &input);
   void drawOverlays(float dt);
   void update();
 };

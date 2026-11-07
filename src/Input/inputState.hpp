@@ -6,28 +6,9 @@
 #include <optional>
 
 enum class Action {
-  Shoot,
   Jump,
-  Sneak,
-  Place,
-
-  Pause,
-  Openchat,
-  OpenChatCommands,
-  TabKills,
   Click,
-  Exit,
-
   OpenDebug,
-  ShowChunkBorders,
-  ShowCollision,
-  ChangeClipping,
-  Reconnect,
-  Zoom,
-  DownHotbarSlot,
-  UpHotbarSlot,
-
-  OpenAdminPanel,
 
   Count
 };
