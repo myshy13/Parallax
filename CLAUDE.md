@@ -77,6 +77,8 @@ Do not do any code unless you have concrete evidence that they already would kno
 - `constexpr` constants over `#define`; no `static` functions in headers
   (`inline` or `constexpr` instead).
 - When a value is repeated, move it to a new `constexpr` variable.
+- Australian spelling in the creator's own names (`groundColour`, `normalise`); library and GLSL names stay as they are
+  (`Color`, `colDiffuse`). Point out American spellings in the creator's names during review.
 - Don't delete an explanatory comment to satisfy "one line" — shorten it.
 - Formatting wise, the creator is always correct
 
