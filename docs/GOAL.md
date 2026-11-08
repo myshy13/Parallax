@@ -48,7 +48,6 @@ Realistic, shader-driven lighting from the sun.
 - Ground and sky: generated, no art files.
 - Ship: a placeholder (e.g. a few stretched, tilted cubes). A real model is art polish.
 - HUD: debug information only (FPS and frame time at minimum).
-- Textures that do need files are produced by reproducible scripts checked into the repo, not hand-painted.
 - Free CC0 sources (Kenney, Quaternius, Poly Haven, ambientCG) are fine; I check each license.
 
 ### Build order
