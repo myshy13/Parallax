@@ -52,7 +52,7 @@ void Engine::run() {
     float dt = GetFrameTime();
     // ==== update ==== //
     input.update();
-    player.update(dt);
+    player.update(dt, gravity);
     player.getViewpoint().applyTo(camera);
     debug.update();
 

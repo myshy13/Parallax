@@ -15,13 +15,18 @@ private:
   // 90 would break LookAt
   static constexpr float MAX_PITCH = 89.0f * DEG2RAD;
   static constexpr float TOP_SPEED = 5.f;
+  static constexpr float TERMINAL_VELOCITY = 10.f;
   static constexpr float EYE_DROP = 0.3f;
+
+  static constexpr float JUMP_SPEED = 5; // TODO: fine tune
 
   Transform transform{{0, 0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 1.5f, 0.8f}};
   Vector3 vel{0.0f, 0.0f, 0.0f};
 
   float yaw = 0.0f;
   float pitch = 0.0f;
+
+  bool grounded{false}; // calculate first frame
 
   AssetHandle playerTextureHandle; // from assets
   Model playerModel;
@@ -31,7 +36,7 @@ private:
 
 public:
   Player(Renderer &renderer, Assets &assets, Input &input);
-  void update(float dt);
+  void update(float dt, float gravity);
   Viewpoint getViewpoint() const;
   void draw();
 

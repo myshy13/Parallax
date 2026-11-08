@@ -41,6 +41,7 @@ public:
 
 private:
   static constexpr float GROUND_PLANE_SIZE = 120.0f;
+  float gravity = 9.8f; // m/s²
 
   Window window; // must stay first
   Assets assets;

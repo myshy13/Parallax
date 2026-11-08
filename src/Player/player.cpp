@@ -1,7 +1,10 @@
 #include "player.hpp"
 #include "Assets/assets.hpp"
 #include "Input/input.hpp"
+#include "Input/inputState.hpp"
 #include "Renderer/renderer.hpp"
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <raylib.h>
 #include <raymath.h>
@@ -41,7 +44,7 @@ Viewpoint Player::getViewpoint() const {
   return Viewpoint{head, viewRotation};
 }
 
-void Player::update(float dt) {
+void Player::update(float dt, float gravity) {
   // No dt here: a mouse delta is already the movement for this frame.
   Vector2 look = input.getLook();
   yaw -= look.x * LOOK_SENSITIVITY;
@@ -73,11 +76,38 @@ void Player::update(float dt) {
     moveDir = Vector3Normalize(moveDir);
   }
 
+  if (grounded && input.down(Action::Jump)) {
+    vel.y += JUMP_SPEED;
+    grounded = false;
+  }
+
   // Push and damp in one exact step, so top speed doesn't depend on frame rate.
   const float dampBase = 0.7f; // per 1/60 s
   const float damping = powf(dampBase, dt * 60.0f);
   vel.x = vel.x * damping + moveDir.x * TOP_SPEED * (1.0f - damping);
   vel.z = vel.z * damping + moveDir.z * TOP_SPEED * (1.0f - damping);
 
-  transform.translation += vel * dt;
+  auto blocked = [&]() { return transform.translation.y < 0; };
+
+  transform.translation.x += vel.x * dt;
+  if (blocked()) {
+    transform.translation.x -= vel.x * dt; // how do i snap these values?
+    vel.x = 0.0f;
+  }
+  transform.translation.y += vel.y * dt - 0.5f * gravity * pow(dt, 2);
+  // After the move: the line above needs this frame's starting vel.y.
+  vel.y -= gravity * dt;
+  vel.y = std::max(vel.y, -TERMINAL_VELOCITY);
+  if (blocked()) {
+    transform.translation.y = 0.0f;
+    vel.y = 0.0f;
+    grounded = true;
+  } else {
+    grounded = false;
+  }
+  transform.translation.z += vel.z * dt;
+  if (blocked()) {
+    transform.translation.z -= vel.z * dt; // how do i snap these values?
+    vel.z = 0.0f;
+  }
 }
