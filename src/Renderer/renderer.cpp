@@ -27,14 +27,22 @@ Renderer::Renderer() {
   shader = loadInstancedShader("shader");
   // ground shader
   groundShader = loadInstancedShader("ground");
+
+  setRenderTexture();
 }
 
 Renderer::~Renderer() {
   UnloadShader(shader);
   UnloadShader(groundShader);
+  UnloadRenderTexture(target);
 }
 
-void Renderer::flush() {
+void Renderer::flush(Camera3D &camera) {
+  if (IsWindowResized() && GetScreenHeight() > 0 && GetScreenWidth() > 0) {
+    UnloadRenderTexture(target);
+    setRenderTexture();
+  }
+  // ==== draw ==== //
   std::vector<Batch> batches;
 
   // ==== build batches ==== //
@@ -55,6 +63,10 @@ void Renderer::flush() {
       it->transforms.push_back(command.transform);
     }
   }
+
+  BeginTextureMode(target);
+  ClearBackground(BLACK);
+  BeginMode3D(camera);
   // ==== render batches ==== //
   for (const Batch &batch : batches) {
     DrawMeshInstanced(*batch.mesh, *batch.material, batch.transforms.data(),
@@ -62,4 +74,13 @@ void Renderer::flush() {
   }
 
   queue.clear();
+  EndMode3D();
+  EndTextureMode();
+}
+
+void Renderer::setRenderTexture() {
+  int width = GetScreenWidth() * RENDER_SCALE;
+  int height = GetScreenHeight() * RENDER_SCALE;
+  target = LoadRenderTexture(width, height);
+  SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 }

@@ -20,12 +20,18 @@ public:
   ~Renderer();
 
   void submit(const DrawCommand &command) { queue.push_back(command); }
-  void flush();
+  void flush(Camera3D &camera);
 
+  // ==== getters ==== //
   const Shader &getShader() const { return shader; }
   const Shader &getGroundShader() const { return groundShader; }
 
+  const Texture &getRenderTexture() const { return target.texture; };
+
 private:
+  void setRenderTexture();
+  static constexpr float RENDER_SCALE = GLSL_VERSION == 100 ? 2.0f : 1.5f;
+  RenderTexture2D target{};
   std::vector<DrawCommand> queue{};
 
   Shader shader;       // todo: move to dedicated lighting class

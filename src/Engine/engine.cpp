@@ -60,15 +60,21 @@ void Engine::run() {
     player.draw();
 
     // ==== draw ==== //
-    BeginDrawing();
-    ClearBackground(BLACK);
-    BeginMode3D(camera);
-
     renderer.submit(DrawCommand{&groundPlane.meshes[0],
                                 &groundPlane.materials[0], MatrixIdentity()});
-    renderer.flush();
+    renderer.flush(camera);
 
-    EndMode3D();
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    const Texture2D &renderTexture = renderer.getRenderTexture();
+    DrawTexturePro(renderTexture,
+                   {0, 0, static_cast<float>(renderTexture.width),
+                    -static_cast<float>(renderTexture.height)},
+                   {0, 0, static_cast<float>(GetScreenWidth()),
+                    static_cast<float>(GetScreenHeight())},
+                   {0, 0}, 0.0f, WHITE);
+
     // ==== overlays ==== //
     debug.drawOverlays(dt);
     EndDrawing();
