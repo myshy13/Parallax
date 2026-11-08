@@ -36,6 +36,7 @@ private:
 
 public:
   Player(Renderer &renderer, Assets &assets, Input &input);
+  ~Player();
   void update(float dt, float gravity);
   Viewpoint getViewpoint() const;
   void draw();

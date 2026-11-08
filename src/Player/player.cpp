@@ -21,6 +21,9 @@ Player::Player(Renderer &renderer, Assets &assets, Input &input)
   playerModel.materials[0].shader = renderer.getShader();
 }
 
+// Frees the mesh and maps only; the shader and texture belong to Renderer and Assets.
+Player::~Player() { UnloadModel(playerModel); }
+
 void Player::draw() {
   Matrix scale =
       MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
