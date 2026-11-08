@@ -1,28 +1,45 @@
 #pragma once
 
 #include "Assets/assets.hpp"
+#include "Camera/viewpoint.hpp"
 #include "Input/input.hpp"
 #include "Renderer/renderer.hpp"
 #include <raylib.h>
 #include <raymath.h>
 
+// Player handles movement and provides a viewpoint
 class Player {
 private:
-  // initialises to {0,0,0}
-  Vector3 pos{0.0f,2.0f, 0.0f}; // top of player
+  // radians per look unit
+  static constexpr float LOOK_SENSITIVITY = 0.002f;
+  // 90 would break LookAt
+  static constexpr float MAX_PITCH = 89.0f * DEG2RAD;
+  static constexpr float TOP_SPEED = 5.f;
+  static constexpr float TERMINAL_VELOCITY = 10.f;
+  static constexpr float EYE_DROP = 0.3f;
+
+  static constexpr float JUMP_SPEED = 5; // TODO: fine tune
+
+  Transform transform{{0, 0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 1.5f, 0.8f}};
   Vector3 vel{0.0f, 0.0f, 0.0f};
 
-  Vector3 look{}; // player looking direction. radians
+  float yaw = 0.0f;
+  float pitch = 0.0f;
+
+  bool grounded{false}; // calculate first frame
 
   AssetHandle playerTextureHandle; // from assets
   Model playerModel;
 
-  Renderer& renderer; // reference to engine
-  Assets& assets; // refrence to engine's copy
-  Input& input;
+  Renderer &renderer; // reference to engine
+  Input &input;
 
 public:
-  Player(Renderer &renderer, Assets &assets, Input& input);
-  void update(float dt, Camera& camera);
+  Player(Renderer &renderer, Assets &assets, Input &input);
+  ~Player();
+  void update(float dt, float gravity);
+  Viewpoint getViewpoint() const;
   void draw();
+
+  const Vector3 &getVel() const { return vel; };
 };

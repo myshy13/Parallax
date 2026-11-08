@@ -6,6 +6,7 @@ Before writing any code, read and follow the project docs:
 
 - Use `docs/GOAL.md` for the current stage, its finish line, build order, scope and performance budget.
 - Use `docs/RENDERING.md` for units, web and native differences, renderer structure and what to do when it gets slow.
+- Use `docs/BACKLOG.md` for changes to existing code that are due when a given class is added. Check it when adding a class.
 - `docs/VISION.md` is the parking lot. Don't build from it, and put ideas that aren't needed for the current finish line there.
 
 At the start of a session, read `context.md` (repo root) for where the last session stopped. If it doesn't exist,
@@ -76,6 +77,9 @@ Do not do any code unless you have concrete evidence that they already would kno
 - Every shader exists in both `assets/shaders/glsl330/` and `assets/shaders/glsl100/`, loaded through `GLSL_VERSION`.
 - `constexpr` constants over `#define`; no `static` functions in headers
   (`inline` or `constexpr` instead).
+- When a value is repeated, move it to a new `constexpr` variable.
+- Australian spelling in the creator's own names (`groundColour`, `normalise`); library and GLSL names stay as they are
+  (`Color`, `colDiffuse`). Point out American spellings in the creator's names during review.
 - Don't delete an explanatory comment to satisfy "one line" — shorten it.
 - Formatting wise, the creator is always correct
 
