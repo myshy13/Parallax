@@ -5,6 +5,7 @@
 #include "Input/input.hpp"
 #include "Player/player.hpp"
 #include "Renderer/renderer.hpp"
+#include "World/world.hpp"
 #include <raylib.h>
 
 struct EngineConfig {
@@ -31,7 +32,6 @@ struct Window {
 class Engine {
 public:
   explicit Engine(const EngineConfig &conf);
-  ~Engine();
 
   // copy protection
   Engine(const Engine &) = delete;
@@ -40,16 +40,14 @@ public:
   void run();
 
 private:
-  static constexpr float GROUND_PLANE_SIZE = 120.0f;
-  float gravity = 9.8f; // m/s²
-
   Window window; // must stay first
   Assets assets;
   Renderer renderer;
 
+  World world;
+
   Debug debug;
   Player player;
-  Model groundPlane;
 
   Input input;
   Camera3D camera;
