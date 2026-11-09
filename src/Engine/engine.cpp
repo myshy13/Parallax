@@ -29,19 +29,11 @@ Window::Window(const EngineConfig &conf) {
 }
 
 Engine::Engine(const EngineConfig &conf)
-    : window(conf), renderer(), debug(player, input),
+    : window(conf), renderer(), world(renderer), debug(player, input),
       player(renderer, assets, input), input(makeInputSource()) {
   camera = {
       {10.0f, 10.0f, 10.0f}, {0, 0, 0}, {0, 1, 0}, 100.0f, CAMERA_PERSPECTIVE};
-
-  Mesh groundPlaneMesh =
-      GenMeshPlane(GROUND_PLANE_SIZE, GROUND_PLANE_SIZE, 1, 1);
-  groundPlane = LoadModelFromMesh(groundPlaneMesh);
-  groundPlane.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = WHITE;
-  groundPlane.materials[0].shader = renderer.getGroundShader();
 }
-
-Engine::~Engine() { UnloadModel(groundPlane); }
 
 void Engine::run() {
   DisableCursor();
@@ -52,16 +44,15 @@ void Engine::run() {
     float dt = GetFrameTime();
     // ==== update ==== //
     input.update();
-    player.update(dt, gravity);
+    player.update(dt, world.getGravity());
     player.getViewpoint().applyTo(camera);
     debug.update();
 
     // ==== upload ==== //
     player.draw();
+    world.draw();
 
     // ==== draw ==== //
-    renderer.submit(DrawCommand{&groundPlane.meshes[0],
-                                &groundPlane.materials[0], MatrixIdentity()});
     renderer.flush(camera);
 
     BeginDrawing();
