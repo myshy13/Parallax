@@ -61,11 +61,11 @@ What raylib does:
 - The uniforms are `lightDir[]`, `lightColour[]`, `lightCount` and `ambientColour`, and the loop is the same in `shader.fs` and `ground.fs`: ambient plus `max(dot(N, lightDir[i]), 0.0) * lightColour[i]`.
 - The ground shader uses a fixed normal of `vec3(0, 1, 0)`. That is only right while the ground plane is flat and its transform has no rotation.
 - `MAX_LIGHTS` (16) lives in `Lighting.hpp` and in every lit shader (both versions). Change them together.
-- Normals are `mat3(instanceTransform) * vertexNormal`, which is only right for uniform scale. Use the inverse transpose if anything is ever scaled non-uniformly.
+- Normals are `mat3(instanceTransform) * vertexNormal`, which is only right for uniform scale. The player's box is scaled non-uniformly but still lights correctly, because its normals are axis-aligned and the scale is applied before the rotation. Any other mesh scaled non-uniformly needs the inverse transpose.
 - Lighting is done in sRGB space, with no gamma correction yet.
 - The lit ship shader also adds a Blinn-Phong specular highlight: `H = normalize(L + V)`, then `pow(max(dot(N, H), 0.0), shininess)`, only on the lit side, added after the albedo multiply so it takes the light's colour. `shininess` and `specStrength` are constants in `shader.fs`. It needs `fragPos` (world position, `highp` on GLSL 100) from the vertex shader and `viewPos` (`camera.position`), which `Lighting::upload(viewPos)` sets each frame.
-- The ground has no specular yet; revisit it with the noise in build step 4. Its shader has no `viewPos`, so raylib logs a harmless missing-uniform warning for it.
-- Not done yet: a hemisphere ambient, gamma correction, point lights (parked in VISION.md).
+- The ground has no specular yet; revisit it with the noise in build step 4. Its shader has no `viewPos`, so that location is -1 and `SetShaderValue` skips it (raylib 5.5 doesn't log missing uniforms).
+- Not done yet: a hemisphere ambient, gamma correction, point lights (a later idea).
 - The creator writes the `glsl330` shaders and Claude ports them to `glsl100`.
 
 ## When it gets slow
