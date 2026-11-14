@@ -75,6 +75,7 @@ Do not do any code unless you have concrete evidence that they already would kno
 - 1 raylib unit = 1 metre.
 - Keep `#ifdef` out of rendering and game code. raylib already hides the platform; see `docs/RENDERING.md`.
 - Every shader exists in both `assets/shaders/glsl330/` and `assets/shaders/glsl100/`, loaded through `GLSL_VERSION`.
+  The creator writes the `glsl330` shader; Claude ports it to `glsl100` (and keeps the two in sync).
 - `constexpr` constants over `#define`; no `static` functions in headers
   (`inline` or `constexpr` instead).
 - When a value is repeated, move it to a new `constexpr` variable.

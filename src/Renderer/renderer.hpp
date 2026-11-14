@@ -1,4 +1,5 @@
 #pragma once
+#include "Lighting/Lighting.hpp"
 #include <raylib.h>
 #include <vector>
 
@@ -19,6 +20,10 @@ public:
   Renderer(); // initialises the shader
   ~Renderer();
 
+  // no copy operations
+  Renderer(const Renderer &) = delete;
+  Renderer &operator=(const Renderer &) = delete;
+
   void submit(const DrawCommand &command) { queue.push_back(command); }
   void flush(Camera3D &camera);
 
@@ -34,8 +39,10 @@ private:
   RenderTexture2D target{};
   std::vector<DrawCommand> queue{};
 
-  Shader shader;       // todo: move to dedicated lighting class
+  Shader shader;       // lit shader for the ship
   Shader groundShader; // makes gridlines
 
   Shader loadInstancedShader(const char *name);
+
+  Lighting lighting;
 };
