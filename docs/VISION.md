@@ -102,6 +102,7 @@ GLSL shader work: atmospheric scattering, normal-mapped lighting, a glow or bloo
 
 ### Technology
 
+- Point lights (torches, lamps): extend the light array with a position and attenuation, once there is gameplay for them
 - Saving and loading
 - Sound and music
 - Seed sharing UI
