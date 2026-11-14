@@ -51,6 +51,21 @@ What raylib does:
 
 `Renderer::flush()` draws every batch with `DrawMeshInstanced`, even a single mesh, so every material it draws needs a shader that reads the per-instance transform as a vertex attribute (`instanceTransform`, set on `locs[SHADER_LOC_MATRIX_MODEL]`). The web build relies on `GL_ANGLE_instanced_arrays` for it. Not yet tested on the web: check it on the low-end device.
 
+## Lighting
+
+`Renderer` owns a `Lighting` (`src/Lighting/`). The scene is lit by directional lights, with the sun as light 0, plus one flat ambient colour.
+
+- `Lighting` holds the lights (each has an id, a unit `dir` pointing TO the light, and a colour) and an ambient colour.
+- Every shader that is lit is registered once with `Lighting::addShader()`, which looks up that shader's uniform locations. Locations belong to a shader program, so each shader has its own.
+- `Renderer::flush()` calls `Lighting::upload()` once per frame, inside `BeginMode3D`, which sets the uniforms on every registered shader.
+- The uniforms are `lightDir[]`, `lightColour[]`, `lightCount` and `ambientColour`, and the loop is the same in `shader.fs` and `ground.fs`: ambient plus `max(dot(N, lightDir[i]), 0.0) * lightColour[i]`.
+- The ground shader uses a fixed normal of `vec3(0, 1, 0)`. That is only right while the ground plane is flat and its transform has no rotation.
+- `MAX_LIGHTS` (16) lives in `Lighting.hpp` and in every lit shader (both versions). Change them together.
+- Normals are `mat3(instanceTransform) * vertexNormal`, which is only right for uniform scale. Use the inverse transpose if anything is ever scaled non-uniformly.
+- Lighting is done in sRGB space, with no gamma correction yet.
+- Not done yet: specular, a hemisphere ambient, point lights (parked in VISION.md).
+- The creator writes the `glsl330` shaders and Claude ports them to `glsl100`.
+
 ## When it gets slow
 
 1. Read the frame-time counter in a Release build on the low-end device.
