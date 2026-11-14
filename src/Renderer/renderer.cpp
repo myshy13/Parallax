@@ -1,5 +1,4 @@
 #include "renderer.hpp"
-#include "Lighting/Lighting.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
@@ -24,14 +23,14 @@ static_assert(GLSL_VERSION == 330 || GLSL_VERSION == 100,
               "Invalid glsl version");
 Renderer::Renderer()
     : shader(loadInstancedShader("shader")),
-      groundShader(loadInstancedShader("ground")), lighting() {
+      groundShader(loadInstancedShader("ground")) {
 
   setRenderTexture();
 
   lighting.addShader(shader);
   lighting.addShader(groundShader);
 
-  sunLight = lighting.createLight({3, 5, -4}, {255, 238, 222, 255});
+  lighting.createLight({3, 5, -4}, {255, 238, 222, 255}); // the sun
 }
 
 Renderer::~Renderer() {

@@ -45,5 +45,4 @@ private:
   Shader loadInstancedShader(const char *name);
 
   Lighting lighting;
-  int sunLight{-1};
 };

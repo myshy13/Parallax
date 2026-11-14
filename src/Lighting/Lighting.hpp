@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Lighting/light.hpp"
+#include <optional>
 #include <raylib.h>
 #include <vector>
 
 constexpr int MAX_LIGHTS = 4; // must stay in sync with shaders
 constexpr Vector3 defaultAmbient = {0.3, 0.3, 0.3};
 
+// a copy of the shader (only its id is used) and where its uniforms live
 struct LitShader {
-  const Shader *shader;
+  Shader shader;
   int dirLoc{-1};
   int colourLoc{-1};
   int countLoc{-1};
@@ -24,17 +26,18 @@ private:
 
   std::vector<LitShader> litShaders;
 
-  Light *findLight(int id, std::vector<Light> &lights);
+  Light *findLight(int id);
 
 public:
-  int createLight(Vector3 toLight,
-                  Color colour); // toLight points at the sun
-  const Light *getLight(int id);
+  // toLight points from the surface towards the light; returns -1 if rejected
+  int createLight(Vector3 toLight, Color colour);
+  // a copy, because the lights vector can move when lights are added or removed
+  std::optional<Light> getLight(int id) const;
   void setLight(int id, const Light &newLight);
   void removeLight(int id);
-  void addShader(const Shader &);
+  void addShader(const Shader &shader);
 
-  void setAmbient(Color ambient);
+  void setAmbient(Color newAmbient);
 
   void upload(Vector3 viewPos);
 };
