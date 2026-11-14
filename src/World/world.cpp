@@ -16,7 +16,7 @@ World::World(Renderer &renderer) : renderer(renderer) {
     ship.materials[i].shader = renderer.getShader();
   }
 
-  shipTransform = shipTransform * MatrixRotateZ(-5 * DEG2RAD);
+  shipTransform = shipTransform * MatrixRotate({1, 0, 2}, -5 * DEG2RAD);
   shipTransform = shipTransform * MatrixTranslate(15, -0.5, 0);
   shipTransform = shipTransform * MatrixScale(0.8,0.8,0.8);
 }
