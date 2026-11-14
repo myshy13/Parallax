@@ -4,7 +4,7 @@ precision mediump float;
 
 varying vec2 fragTexCoord;
 varying vec3 fragNormal;
-varying highp vec3 fragPos; // world position; highp for the same reason as in shader.vs
+varying vec3 fragView; // surface -> camera, from the vertex shader
 
 const int MAX_LIGHTS = 4; // must match Lighting.hpp and ground.fs
 const float shininess = 48.0;   // higher = tighter highlight
@@ -17,11 +17,10 @@ uniform vec3 lightDir[MAX_LIGHTS];
 uniform vec3 lightColour[MAX_LIGHTS];
 uniform int lightCount;
 uniform vec3 ambientColour;
-uniform highp vec3 viewPos; // camera position in world space
 
 void main() {
   vec3 N = normalize(fragNormal);
-  vec3 V = normalize(viewPos - fragPos); // surface -> camera
+  vec3 V = normalize(fragView);
 
   vec3 diffuse  = ambientColour;
   vec3 specular = vec3(0.0);

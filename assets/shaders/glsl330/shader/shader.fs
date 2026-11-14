@@ -2,7 +2,7 @@
 
 in vec2 fragTexCoord;
 in vec3 fragNormal;
-in vec3 fragPos;
+in vec3 fragView;
 
 const int MAX_LIGHTS = 4; // must match Lighting.hpp and ground.fs
 
@@ -14,8 +14,6 @@ uniform vec3 lightColour[MAX_LIGHTS];
 uniform int lightCount;
 uniform vec3 ambientColour;
 
-uniform vec3 viewPos;
-
 out vec4 finalColor;
 
 const float shininess = 48.0;
@@ -23,7 +21,7 @@ const float specStrength = 0.4;
 
 void main() {
   vec3 N = normalize(fragNormal);
-  vec3 V = normalize(viewPos - fragPos);
+  vec3 V = normalize(fragView);
 
   vec3 diffuse = ambientColour;
   vec3 specular = vec3(0.0);
