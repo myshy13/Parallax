@@ -13,6 +13,7 @@ struct LitShader {
   int colourLoc{-1};
   int countLoc{-1};
   int ambientLoc{-1};
+  int viewLoc{-1};
 };
 
 class Lighting {
@@ -35,5 +36,5 @@ public:
 
   void setAmbient(Color ambient);
 
-  void upload();
+  void upload(Vector3 viewPos);
 };

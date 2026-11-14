@@ -11,6 +11,7 @@ uniform mat4 mvp;
 
 out vec2 fragTexCoord;
 out vec3 fragNormal;
+out vec3 fragPos;
 
 void main() {
   fragTexCoord = vertexTexCoord;
@@ -18,4 +19,6 @@ void main() {
 
   // world-space normal; only correct for uniform scale (else use the inverse transpose)
   fragNormal = mat3(instanceTransform) * vertexNormal;
+  vec4 worldPos = instanceTransform * vec4(vertexPosition, 1.0);
+  fragPos = worldPos.xyz;
 }

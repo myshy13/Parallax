@@ -70,7 +70,7 @@ void Renderer::flush(Camera3D &camera) {
   BeginTextureMode(target);
   ClearBackground(BLACK);
   BeginMode3D(camera);
-  lighting.upload();
+  lighting.upload(camera.position);
   // ==== render batches ==== //
   for (const Batch &batch : batches) {
     DrawMeshInstanced(*batch.mesh, *batch.material, batch.transforms.data(),

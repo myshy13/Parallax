@@ -17,8 +17,9 @@ void Lighting::addShader(const Shader &shader) {
   int colour = GetShaderLocation(shader, "lightColour[0]");
   int lightCount = GetShaderLocation(shader, "lightCount");
   int ambient = GetShaderLocation(shader, "ambientColour");
+  int viewPos = GetShaderLocation(shader, "viewPos");
 
-  litShaders.emplace_back(&shader, dir, colour, lightCount, ambient);
+  litShaders.emplace_back(&shader, dir, colour, lightCount, ambient, viewPos);
 }
 
 void Lighting::setAmbient(Color newAmbient) {
@@ -56,7 +57,7 @@ void Lighting::removeLight(int id) {
   std::erase_if(lights, [&](const Light &l) { return id == l.id; });
 }
 
-void Lighting::upload() {
+void Lighting::upload(Vector3 viewPos) {
   Vector3 directions[MAX_LIGHTS] = {};
   Vector3 colours[MAX_LIGHTS] = {};
   int lightCount = lights.size();
@@ -75,6 +76,8 @@ void Lighting::upload() {
     SetShaderValueV(*litShader.shader, litShader.dirLoc, directions,
                     SHADER_UNIFORM_VEC3, MAX_LIGHTS);
     SetShaderValue(*litShader.shader, litShader.ambientLoc, &ambient,
+                   SHADER_UNIFORM_VEC3);
+    SetShaderValue(*litShader.shader, litShader.viewLoc, &viewPos,
                    SHADER_UNIFORM_VEC3);
   }
 }
