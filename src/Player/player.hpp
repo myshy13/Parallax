@@ -14,11 +14,11 @@ private:
   static constexpr float LOOK_SENSITIVITY = 0.002f;
   // 90 would break LookAt
   static constexpr float MAX_PITCH = 89.0f * DEG2RAD;
-  static constexpr float TOP_SPEED = 5.f;
+  static constexpr float TOP_SPEED = 4.5f;
   static constexpr float TERMINAL_VELOCITY = 10.f;
   static constexpr float EYE_DROP = 0.3f;
 
-  static constexpr float JUMP_SPEED = 5; // TODO: fine tune
+  static constexpr float JUMP_SPEED = 4.f;
 
   Transform transform{{0, 0, 0}, {0.0f, 0.0f, 0.0f, 1.0f}, {0.8f, 1.5f, 0.8f}};
   Vector3 vel{0.0f, 0.0f, 0.0f};
