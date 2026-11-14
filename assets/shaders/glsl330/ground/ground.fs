@@ -2,7 +2,7 @@
 
 in vec2 fragWorldXZ;
 
-const int MAX_LIGHTS = 16; // must match Lighting.hpp and shader.fs
+const int MAX_LIGHTS = 4; // must match Lighting.hpp and shader.fs
 const vec3 groundNormal = vec3(0.0, 1.0, 0.0);
 
 const float spacing     = 1.0;

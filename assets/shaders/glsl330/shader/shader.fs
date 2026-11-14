@@ -4,7 +4,7 @@ in vec2 fragTexCoord;
 in vec3 fragNormal;
 in vec3 fragPos;
 
-const int MAX_LIGHTS = 16;
+const int MAX_LIGHTS = 4; // must match Lighting.hpp and ground.fs
 
 // raylib fills these by name: the material's texture and the DrawModel tint
 uniform sampler2D texture0;

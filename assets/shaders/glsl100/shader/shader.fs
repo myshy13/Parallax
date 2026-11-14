@@ -6,7 +6,7 @@ varying vec2 fragTexCoord;
 varying vec3 fragNormal;
 varying highp vec3 fragPos; // world position; highp for the same reason as in shader.vs
 
-const int MAX_LIGHTS = 16;
+const int MAX_LIGHTS = 4; // must match Lighting.hpp and ground.fs
 const float shininess = 48.0;   // higher = tighter highlight
 const float specStrength = 0.4; // how bright the highlight is
 

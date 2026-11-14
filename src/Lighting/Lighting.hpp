@@ -4,7 +4,7 @@
 #include <raylib.h>
 #include <vector>
 
-constexpr int MAX_LIGHTS = 16; // must stay in sync with shaders
+constexpr int MAX_LIGHTS = 4; // must stay in sync with shaders
 constexpr Vector3 defaultAmbient = {0.3, 0.3, 0.3};
 
 struct LitShader {

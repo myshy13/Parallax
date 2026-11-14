@@ -60,7 +60,7 @@ What raylib does:
 - `Renderer::flush()` calls `Lighting::upload()` once per frame, inside `BeginMode3D`, which sets the uniforms on every registered shader.
 - The uniforms are `lightDir[]`, `lightColour[]`, `lightCount` and `ambientColour`, and the loop is the same in `shader.fs` and `ground.fs`: ambient plus `max(dot(N, lightDir[i]), 0.0) * lightColour[i]`.
 - The ground shader uses a fixed normal of `vec3(0, 1, 0)`. That is only right while the ground plane is flat and its transform has no rotation.
-- `MAX_LIGHTS` (16) lives in `Lighting.hpp` and in every lit shader (both versions). Change them together.
+- `MAX_LIGHTS` (4, so the GLSL 100 shaders stay within the 16 fragment uniform vectors WebGL 1 guarantees) lives in `Lighting.hpp` and in every lit shader (both versions). Change them together.
 - Normals are `mat3(instanceTransform) * vertexNormal`, which is only right for uniform scale. The player's box is scaled non-uniformly but still lights correctly, because its normals are axis-aligned and the scale is applied before the rotation. Any other mesh scaled non-uniformly needs the inverse transpose.
 - Lighting is done in sRGB space, with no gamma correction yet.
 - The lit ship shader also adds a Blinn-Phong specular highlight: `H = normalize(L + V)`, then `pow(max(dot(N, H), 0.0), shininess)`, only on the lit side, added after the albedo multiply so it takes the light's colour. `shininess` and `specStrength` are constants in `shader.fs`. It needs `fragPos` (world position, `highp` on GLSL 100) from the vertex shader and `viewPos` (`camera.position`), which `Lighting::upload(viewPos)` sets each frame.
