@@ -51,6 +51,23 @@ What raylib does:
 
 `Renderer::flush()` draws every batch with `DrawMeshInstanced`, even a single mesh, so every material it draws needs a shader that reads the per-instance transform as a vertex attribute (`instanceTransform`, set on `locs[SHADER_LOC_MATRIX_MODEL]`). The web build relies on `GL_ANGLE_instanced_arrays` for it. Not yet tested on the web: check it on the low-end device.
 
+## Lighting
+
+`Renderer` owns a `Lighting` (`src/Lighting/`). The scene is lit by directional lights, with the sun as light 0, plus one flat ambient colour.
+
+- `Lighting` holds the lights (each has an id, a unit `dir` pointing TO the light, and a colour) and an ambient colour.
+- Every shader that is lit is registered once with `Lighting::addShader()`, which looks up that shader's uniform locations. Locations belong to a shader program, so each shader has its own.
+- `Renderer::flush()` calls `Lighting::upload()` once per frame, inside `BeginMode3D`, which sets the uniforms on every registered shader.
+- The uniforms are `lightDir[]`, `lightColour[]`, `lightCount` and `ambientColour`, and the loop is the same in `shader.fs` and `ground.fs`: ambient plus `max(dot(N, lightDir[i]), 0.0) * lightColour[i]`.
+- The ground shader uses a fixed normal of `vec3(0, 1, 0)`. That is only right while the ground plane is flat and its transform has no rotation.
+- `MAX_LIGHTS` (4, so the GLSL 100 shaders stay within the 16 fragment uniform vectors WebGL 1 guarantees) lives in `Lighting.hpp` and in every lit shader (both versions). Change them together.
+- Normals are `mat3(instanceTransform) * vertexNormal`, which is only right for uniform scale. The player's box is scaled non-uniformly but still lights correctly, because its normals are axis-aligned and the scale is applied before the rotation. Any other mesh scaled non-uniformly needs the inverse transpose.
+- Lighting is done in sRGB space, with no gamma correction yet.
+- The lit ship shader also adds a Blinn-Phong specular highlight: `H = normalize(L + V)`, then `pow(max(dot(N, H), 0.0), shininess)`, only on the lit side, added after the albedo multiply so it takes the light's colour. `shininess` and `specStrength` are constants in `shader.fs`. The vertex shader computes `fragView = viewPos - worldPos.xyz` (the surface-to-camera vector), where `viewPos` is `camera.position`, set each frame by `Lighting::upload(viewPos)`. It is done there because vertex shaders are `highp` by default, so the GLSL 100 fragment shader needs no `highp`.
+- The ground has no specular yet; revisit it with the noise in build step 4. Its shader has no `viewPos`, so that location is -1 and `SetShaderValue` skips it (raylib 5.5 doesn't log missing uniforms).
+- Not done yet: a hemisphere ambient, gamma correction, point lights (a later idea).
+- The creator writes the `glsl330` shaders and Claude ports them to `glsl100`.
+
 ## When it gets slow
 
 1. Read the frame-time counter in a Release build on the low-end device.
