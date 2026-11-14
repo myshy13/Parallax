@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "Lighting/Lighting.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
@@ -19,16 +20,18 @@ Shader Renderer::loadInstancedShader(const char *name) {
   return s;
 }
 
-Renderer::Renderer() {
-  static_assert(GLSL_VERSION == 330 || GLSL_VERSION == 100,
-                "Invalid glsl version");
-
-  // main shader
-  shader = loadInstancedShader("shader");
-  // ground shader
-  groundShader = loadInstancedShader("ground");
+static_assert(GLSL_VERSION == 330 || GLSL_VERSION == 100,
+              "Invalid glsl version");
+Renderer::Renderer()
+    : shader(loadInstancedShader("shader")),
+      groundShader(loadInstancedShader("ground")), lighting() {
 
   setRenderTexture();
+
+  lighting.addShader(shader);
+  lighting.addShader(groundShader);
+
+  sunLight = lighting.createLight({3, 5, -4}, {255, 238, 222, 255});
 }
 
 Renderer::~Renderer() {
@@ -67,6 +70,7 @@ void Renderer::flush(Camera3D &camera) {
   BeginTextureMode(target);
   ClearBackground(BLACK);
   BeginMode3D(camera);
+  lighting.upload();
   // ==== render batches ==== //
   for (const Batch &batch : batches) {
     DrawMeshInstanced(*batch.mesh, *batch.material, batch.transforms.data(),
