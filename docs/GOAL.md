@@ -30,7 +30,7 @@ The crash site is its own scene. There is no way to leave it yet.
 - Ground, coloured by noise
 - One crashed ship
 - A sun that lights the scene
-- A sky
+- A sky: seeded day length (10-30 min, mean 20), seeded mid-day colour, black at night, with a moving sun
 - Something that hides the edge of the ground (fog, low hills or similar)
 
 ### Player

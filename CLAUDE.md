@@ -49,9 +49,9 @@ Do not do any code unless you have concrete evidence that they already would kno
 - Small changes (docs, context updates, a typo or one-line fix, tuning a constant) may be committed straight
   on the default branch. Anything medium or bigger and any change to gameplay mechanics gets its own branch. If a change
   looks like it qualifies for its own branch, ask the creator before branching or reminding; the creator decides.
-- Merging a branch: always a merge commit (`git merge --no-ff`), never a fast-forward or a squash. Once the repo has a
-  remote, major changes and any change to gameplay mechanics, however small, go through a GitHub PR
-  (`gh pr create`, then `gh pr merge --merge`).
+- Merging a branch: always a merge commit (`git merge --no-ff`), never a fast-forward or a squash. The repo has a
+  remote, so a branch ready to merge defaults to a GitHub PR (use the `/pr` skill); don't ask whether to use one.
+  Only the small changes above skip it. Merge with `gh pr merge --merge`, and only when the creator says so.
 - The creator sets up the remote. Don't create one.
 - When committing, omit the "Co-Authored-By: Claude" trailer unless the
   amount that you contributed is over ~50% of the code in that 1 commit.

@@ -1,5 +1,4 @@
 #version 100
-#extension GL_OES_standard_derivatives : enable
 
 precision mediump float;
 
@@ -13,21 +12,47 @@ uniform vec3 lightDir[MAX_LIGHTS];
 uniform vec3 lightColour[MAX_LIGHTS];
 uniform int lightCount;
 uniform vec3 ambientColour;
+uniform highp vec2 seedOffset; // highp: values up to ~100 are too coarse in mediump
 
-const float spacing      = 1.0;
-const float lineWidth    = 0.008; // in cells; the width up close
-const float linePixels   = 0.05;   // minimum on-screen width, in pixels
-const vec3  groundColour = vec3(0.9);
-const vec3  lineColour   = vec3(0.3);
+const vec3 dustDark  = vec3(0.4, 0.2, 0.094);
+const vec3 dustLight = vec3(0.749, 0.431, 0.286);
+
+// ==== noise ==== //
+
+const float noiseScale = 0.1; // noise units per metre
+const int   octaves    = 4;
+
+float hash(highp vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float valueNoise(highp vec2 p) {
+  highp vec2 i = floor(p);
+  highp vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f); // smoothstep weight, avoids grid creases
+
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+float fbm(highp vec2 p) {
+  float sum       = 0.0;
+  float amplitude = 0.5;
+
+  for (int i = 0; i < octaves; i++) {
+    sum       += amplitude * valueNoise(p);
+    p         *= 2.0;
+    amplitude *= 0.5;
+  }
+
+  return sum; // 0 to just under 1
+}
 
 void main() {
-  highp vec2 gridPos = fragWorldXZ / spacing; // highp for the same reason as fragWorldXZ
-  vec2 cell          = fract(gridPos);
-  vec2 d             = min(cell, 1.0 - cell);
-  vec2 pixelSize     = fwidth(gridPos);
-  vec2 width         = max(vec2(lineWidth), pixelSize * linePixels);
-  vec2 onLine        = step(d, width);
-
   vec3 light = ambientColour;
 
   // loop bound must be constant in ES 1.00, so skip unused lights instead
@@ -37,6 +62,6 @@ void main() {
     light += max(dot(groundNormal, lightDir[i]), 0.0) * lightColour[i];
   }
 
-  vec3 colour  = mix(groundColour, lineColour, max(onLine.x, onLine.y));
+  vec3 colour  = mix(dustDark, dustLight, fbm(fragWorldXZ * noiseScale + seedOffset));
   gl_FragColor = vec4(colour * colDiffuse.rgb * light, colDiffuse.a);
 }
