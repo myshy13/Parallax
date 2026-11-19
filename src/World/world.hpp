@@ -14,12 +14,16 @@ public:
   const Model &getGroundModel() const { return ground; }
   const Model &getShipModel() const { return ship; }
   float getGravity() const { return gravity; }
-  
+  float getDayPhase() const { return elapsed / dayLengthSecs; };
+
+  void update(float dt);
   void draw(); // upload to renderer
 
 private:
   uint32_t seed{};
-  static constexpr float GROUND_PLANE_SIZE = 120.0f;
+  float elapsed{0.f};
+  float dayLengthSecs{-1.f};
+  static constexpr float GROUND_PLANE_SIZE = 120.f;
 
   Renderer &renderer;
   Model ground;

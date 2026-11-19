@@ -31,6 +31,14 @@ World::World(Renderer &renderer) : renderer(renderer) {
 
   Vector2 seedOffset = hashSeed(seed);
   SetShaderValue(shader, seedOffsetLoc, &seedOffset, SHADER_UNIFORM_VEC2);
+
+  dayLengthSecs = hashDayLength(seed);
+  elapsed = 0.2f * dayLengthSecs;
+}
+
+void World::update(float dt) {
+  elapsed += dt;
+  elapsed = fmod(elapsed, dayLengthSecs);
 }
 
 void World::draw() {

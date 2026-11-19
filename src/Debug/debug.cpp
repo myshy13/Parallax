@@ -5,8 +5,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
-Debug::Debug(const Player &player, const Input &input)
-    : player(player), input(input) {}
+Debug::Debug(const Player &player, const Input &input, const World &world)
+    : player(player), input(input), world(world) {}
 
 void Debug::update() {
   speed = Vector3Length(player.getVel());
@@ -45,4 +45,5 @@ void Debug::drawOverlays(float dt) {
   drawText(TextFormat("Frame time (MS): %.2f", dt * 1000));
   drawText(TextFormat("Average frame time (MS): %.2f",
                       getAverage(lastFrametimes) * 1000));
+  drawText(TextFormat("World time: %.3f", world.getDayPhase()));
 }
