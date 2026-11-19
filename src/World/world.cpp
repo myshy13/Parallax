@@ -1,10 +1,14 @@
 #include "world.hpp"
 #include "Renderer/renderer.hpp"
+#include "World/seedHelpers.hpp"
 #include "rlgl.h"
+#include <cstdlib>
 #include <raylib.h>
 #include <raymath.h>
 
 World::World(Renderer &renderer) : renderer(renderer) {
+  // note: This will stay the same each build without an srand. ok for now
+  seed = rand();
   Mesh groundPlaneMesh =
       GenMeshPlane(GROUND_PLANE_SIZE, GROUND_PLANE_SIZE, 1, 1);
   ground = LoadModelFromMesh(groundPlaneMesh);
@@ -16,9 +20,17 @@ World::World(Renderer &renderer) : renderer(renderer) {
     ship.materials[i].shader = renderer.getShader();
   }
 
-  shipTransform = shipTransform * MatrixRotateXYZ({5.f * DEG2RAD, 10.f * DEG2RAD, -10.f * DEG2RAD});
+  shipTransform =
+      shipTransform *
+      MatrixRotateXYZ({5.f * DEG2RAD, 10.f * DEG2RAD, -10.f * DEG2RAD});
   shipTransform = shipTransform * MatrixTranslate(15.f, -0.5f, 0.f);
-  shipTransform = shipTransform * MatrixScale(0.8f,1.f,0.8f);
+  shipTransform = shipTransform * MatrixScale(0.8f, 1.f, 0.8f);
+
+  Shader shader = renderer.getGroundShader();
+  int seedOffsetLoc = GetShaderLocation(shader, "seedOffset");
+
+  Vector2 seedOffset = hashSeed(seed);
+  SetShaderValue(shader, seedOffsetLoc, &seedOffset, SHADER_UNIFORM_VEC2);
 }
 
 void World::draw() {

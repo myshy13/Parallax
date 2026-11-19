@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Renderer/renderer.hpp"
+#include <cstdint>
 #include <raylib.h>
 #include <raymath.h>
+
 class World {
 public:
   World(Renderer &renderer);
@@ -16,6 +18,7 @@ public:
   void draw(); // upload to renderer
 
 private:
+  uint32_t seed{};
   static constexpr float GROUND_PLANE_SIZE = 120.0f;
 
   Renderer &renderer;
