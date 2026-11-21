@@ -1,9 +1,13 @@
 #include "debug.hpp"
 #include "Input/inputState.hpp"
+#include <algorithm>
+#include <cmath>
 #include <deque>
+#include <iomanip>
 #include <numeric>
 #include <raylib.h>
 #include <raymath.h>
+#include <sstream>
 
 Debug::Debug(const Player &player, const Input &input, const World &world)
     : player(player), input(input), world(world) {}
@@ -35,6 +39,19 @@ void Debug::drawOverlays(float dt) {
   int ROW_HEIGHT = 30;
   int FONTSIZE = 20;
 
+  float normalTime = std::clamp(world.getDayPhase(), 0.0f, 1.0f);
+  int totalSeconds = static_cast<int>(std::round(normalTime * SECS_PER_DAY));
+  if (totalSeconds >= SECS_PER_DAY) {
+    totalSeconds = 0;
+  }
+  int hours = totalSeconds / 3600;
+  int minutes = (totalSeconds % 3600) / 60;
+  int seconds = totalSeconds % 60;
+  std::stringstream worldTime{};
+
+  worldTime << std::setfill('0') << std::setw(2) << hours << ":" << std::setw(2)
+            << minutes << ":" << std::setw(2) << seconds;
+
   auto drawText = [&](const char *text, Color c = WHITE) {
     DrawText(text, startPos.x, startPos.y + ROW * ROW_HEIGHT, FONTSIZE, c);
     ROW++;
@@ -45,5 +62,7 @@ void Debug::drawOverlays(float dt) {
   drawText(TextFormat("Frame time (MS): %.2f", dt * 1000));
   drawText(TextFormat("Average frame time (MS): %.2f",
                       getAverage(lastFrametimes) * 1000));
-  drawText(TextFormat("World time: %.3f", world.getDayPhase()));
+  drawText(TextFormat("World Day Phase: %.3f", world.getDayPhase()));
+  drawText(TextFormat("World Day length: %.1f", world.getDayLength()));
+  drawText(TextFormat("Current Time (24hrs): %s", worldTime.str().c_str()));
 }

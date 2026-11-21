@@ -14,7 +14,8 @@ public:
   const Model &getGroundModel() const { return ground; }
   const Model &getShipModel() const { return ship; }
   float getGravity() const { return gravity; }
-  float getDayPhase() const { return elapsed / dayLengthSecs; };
+  float getDayPhase() const { return elapsed / dayLengthSecs; }
+  float getDayLength() const { return dayLengthSecs; }
 
   void update(float dt);
   void draw(); // upload to renderer

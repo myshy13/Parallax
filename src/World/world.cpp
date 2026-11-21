@@ -2,6 +2,7 @@
 #include "Renderer/renderer.hpp"
 #include "World/seedHelpers.hpp"
 #include "rlgl.h"
+#include <cmath>
 #include <cstdlib>
 #include <raylib.h>
 #include <raymath.h>
@@ -38,7 +39,7 @@ World::World(Renderer &renderer) : renderer(renderer) {
 
 void World::update(float dt) {
   elapsed += dt;
-  elapsed = fmod(elapsed, dayLengthSecs);
+  elapsed = std::fmod(elapsed, dayLengthSecs);
 }
 
 void World::draw() {
