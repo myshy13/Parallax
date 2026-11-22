@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include "Lighting/light.hpp"
 #include "Renderer/renderer.hpp"
 #include "World/seedHelpers.hpp"
 #include "rlgl.h"
@@ -7,8 +8,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
-World::World(Renderer &renderer) : renderer(renderer) {
-  // note: This will stay the same each build without an srand. ok for now
+World::World(Renderer &renderer)
+    : renderer(renderer), lighting(renderer.getLighting()) {
   seed = rand();
   Mesh groundPlaneMesh =
       GenMeshPlane(GROUND_PLANE_SIZE, GROUND_PLANE_SIZE, 1, 1);
@@ -34,12 +35,23 @@ World::World(Renderer &renderer) : renderer(renderer) {
   SetShaderValue(shader, seedOffsetLoc, &seedOffset, SHADER_UNIFORM_VEC2);
 
   dayLengthSecs = hashDayLength(seed);
-  elapsed = 0.2f * dayLengthSecs;
+  elapsed =
+      0.23f *
+      dayLengthSecs; // player first starts in the world just before sunrise
 }
 
 void World::update(float dt) {
   elapsed += dt;
   elapsed = std::fmod(elapsed, dayLengthSecs);
+
+  Vector3 newSunDirection = getSunDirection();
+  int sunLight = renderer.getSunLight();
+  lighting.setLight(sunLight,
+                    Light{sunLight, newSunDirection,
+                          ColorBrightness(sunColor, getDayFactor() - 1.0f)});
+  unsigned char ambient =
+      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, getDayFactor());
+  lighting.setAmbient({ambient, ambient, ambient, 255});
 }
 
 void World::draw() {
@@ -49,6 +61,14 @@ void World::draw() {
     renderer.submit(DrawCommand{
         &ship.meshes[i], &ship.materials[ship.meshMaterial[i]], shipTransform});
   }
+}
+
+float World::getDayFactor() const {
+  float height = getSunDirection().y;
+  float t = Clamp((height - DAY_RAMP_START) / (DAY_RAMP_END - DAY_RAMP_START),
+                  0.0f, 1.0f);
+
+  return t * t * (3.0f - 2.0f * t);
 }
 
 World::~World() {
@@ -61,4 +81,17 @@ World::~World() {
 
   UnloadModel(ship);
   UnloadModel(ground);
+}
+
+constexpr float TAU = 2.f * PI;
+constexpr float SUN_MODIFIER = .2f;
+
+Vector3 World::getSunDirection() const {
+  float phase = getDayPhase();
+  float angle = (0.5 - phase) * TAU;
+
+  Vector3 vector = {std::sinf(angle), std::cosf(angle), SUN_MODIFIER};
+  vector = Vector3Normalize(vector);
+
+  return vector;
 }

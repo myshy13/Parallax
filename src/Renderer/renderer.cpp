@@ -30,7 +30,7 @@ Renderer::Renderer()
   lighting.addShader(shader);
   lighting.addShader(groundShader);
 
-  lighting.createLight({3, 5, -4}, {255, 238, 222, 255}); // the sun
+  sunLight = lighting.createLight({3, 5, -4}, sunColor); // the sun
 }
 
 Renderer::~Renderer() {

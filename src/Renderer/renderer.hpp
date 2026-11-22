@@ -15,6 +15,8 @@ struct Batch {
   std::vector<Matrix> transforms;
 };
 
+constexpr Color sunColor = (Color){255, 238, 222, 255};
+
 class Renderer {
 public:
   Renderer(); // initialises the shader
@@ -33,12 +35,16 @@ public:
 
   const Texture &getRenderTexture() const { return target.texture; };
 
+  Lighting &getLighting() { return lighting; };
+  int getSunLight() const { return sunLight; }
+
 private:
   void setRenderTexture();
   static constexpr float RENDER_SCALE = GLSL_VERSION == 100 ? 2.0f : 1.5f;
   RenderTexture2D target{};
   std::vector<DrawCommand> queue{};
 
+  int sunLight;
   Shader shader;       // lit shader for the ship
   Shader groundShader; // makes gridlines
 

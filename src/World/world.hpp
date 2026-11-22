@@ -5,6 +5,13 @@
 #include <raylib.h>
 #include <raymath.h>
 
+constexpr float DAY_RAMP_START =
+    0.0f; // sun height where light starts; keep >= 0
+constexpr float DAY_RAMP_END = 0.25f; // sun height of full daylight
+
+constexpr float AMBIENT_DAY_CEIL = 0.3f;
+constexpr float AMBIENT_NIGHT_FLOOR = 0.15f;
+
 class World {
 public:
   World(Renderer &renderer);
@@ -20,6 +27,9 @@ public:
   void update(float dt);
   void draw(); // upload to renderer
 
+  Vector3 getSunDirection() const;
+  float getDayFactor() const;
+
 private:
   uint32_t seed{};
   float elapsed{0.f};
@@ -27,6 +37,7 @@ private:
   static constexpr float GROUND_PLANE_SIZE = 120.f;
 
   Renderer &renderer;
+  Lighting &lighting;
   Model ground;
   Model ship;
   Matrix shipTransform{MatrixIdentity()};
