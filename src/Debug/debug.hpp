@@ -2,6 +2,7 @@
 
 #include "Input/input.hpp"
 #include "Player/player.hpp"
+#include "World/world.hpp"
 #include <deque>
 #include <raylib.h>
 
@@ -17,9 +18,10 @@ private:
   std::deque<float> lastFrametimes = {}; // last dts
 
   const Input &input;
+  const World &world;
 
 public:
-  Debug(const Player &player, const Input &input);
+  Debug(const Player &player, const Input &input, const World &world);
   void drawOverlays(float dt);
   void update();
 };
