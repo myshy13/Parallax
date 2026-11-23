@@ -4,8 +4,12 @@
 #include "Input/inputState.hpp"
 #include "Player/player.hpp"
 #include "Renderer/renderer.hpp"
+#include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
+
+// Longest step the simulation takes; a longer frame runs slow, not in one jump.
+constexpr float MAX_STEP_SECONDS = 0.05f;
 
 Window::Window(const EngineConfig &conf) {
   SetConfigFlags(conf.flags);
@@ -41,7 +45,8 @@ void Engine::run() {
   while (!WindowShouldClose()) {
     if (input.pressed(Action::Click) && !IsCursorHidden())
       DisableCursor();
-    float dt = GetFrameTime();
+    float frameTime = GetFrameTime();
+    float dt        = std::min(frameTime, MAX_STEP_SECONDS);
     // ==== update ==== //
     input.update();
     player.update(dt, world.getGravity());
@@ -68,7 +73,7 @@ void Engine::run() {
                    {0, 0}, 0.0f, WHITE);
 
     // ==== overlays ==== //
-    debug.drawOverlays(dt);
+    debug.drawOverlays(frameTime);
     EndDrawing();
   }
 }
