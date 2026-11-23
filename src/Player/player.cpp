@@ -2,16 +2,19 @@
 #include "Assets/assets.hpp"
 #include "Input/input.hpp"
 #include "Input/inputState.hpp"
+#include "Raylib/collision.hpp"
 #include "Renderer/renderer.hpp"
+#include "World/world.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <raylib.h>
 #include <raymath.h>
 
-Player::Player(Renderer &renderer, Assets &assets, Input &input)
+Player::Player(Renderer &renderer, Assets &assets, Input &input,
+               const World &world)
     : playerTextureHandle(assets.loadAsset("assets/textures/player.png")),
-      renderer(renderer), input(input) {
+      renderer(renderer), input(input), world(world) {
   Mesh playerMesh = GenMeshCube(
       1.0f, 1.0f, 1.0f); // 1.0f because scale gets applied through transform
   playerModel = LoadModelFromMesh(playerMesh);
@@ -21,16 +24,78 @@ Player::Player(Renderer &renderer, Assets &assets, Input &input)
   playerModel.materials[0].shader = renderer.getShader();
 }
 
-// Frees the mesh and maps only; the shader and texture belong to Renderer and Assets.
+// Frees the mesh and maps only; the shader and texture belong to Renderer and
+// Assets.
 Player::~Player() { UnloadModel(playerModel); }
+
+Vector3 Player::getBodyCentre() const {
+  return Vector3Add(transform.translation, {0.0f, transform.scale.y / 2, 0.0f});
+}
+
+OBB Player::getBodyOBB() const {
+  Transform body{getBodyCentre(), QuaternionIdentity(), transform.scale};
+  OBB obb = GetOBBFromTransform(body, Vector3One());
+
+  // Shrunk a hair so resting on a surface isn't counted as overlapping it.
+  obb.halfExtents = Vector3SubtractValue(obb.halfExtents, COLLISION_SKIN);
+  return obb;
+}
+
+// ==== collision response ==== //
+bool Player::resolveCollisions() {
+  const float minFloorNormalY = std::cos(MAX_WALKABLE_SLOPE);
+  bool onFloor                = false;
+
+  for (int pass = 0; pass < MAX_RESOLVE_PASSES; pass++) {
+    bool anyHit = false;
+
+    for (const OBB &collider : world.getColliders()) {
+      Contact contact = GetContactOBB(getBodyOBB(), collider);
+      if (!contact.hit)
+        continue;
+      anyHit = true;
+
+      Vector3 normal = contact.normal; // points out of the collider
+      float push     = contact.depth + CONTACT_SLOP;
+
+      if (std::fabs(normal.y) >= minFloorNormalY) {
+        // Floor or ceiling: push straight up or down, so a slope can't be
+        // crept down.
+        transform.translation.y +=
+            std::copysign(push / std::fabs(normal.y), normal.y);
+        if (normal.y > 0.0f) {
+          onFloor = true;
+          vel.y   = std::max(vel.y, 0.0f);
+        } else {
+          vel.y = std::min(vel.y, 0.0f);
+        }
+      } else {
+        // Wall: push sideways only, so a leaning wall can't be climbed. The
+        // velocity into the wall is dropped and the rest slides along it.
+        Vector3 sideways = {normal.x, 0.0f, normal.z};
+        float length     = Vector3Length(sideways);
+        Vector3 side     = Vector3Scale(sideways, 1.0f / length);
+
+        transform.translation = Vector3Add(transform.translation,
+                                           Vector3Scale(side, push / length));
+        float into = Vector3DotProduct(vel, side);
+        if (into < 0.0f)
+          vel = Vector3Subtract(vel, Vector3Scale(side, into));
+      }
+    }
+
+    if (!anyHit)
+      break;
+  }
+  return onFloor;
+}
 
 void Player::draw() {
   Matrix scale =
       MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
   Matrix rotation = QuaternionToMatrix(transform.rotation);
-  Matrix translation = MatrixTranslate(
-      transform.translation.x, transform.translation.y + transform.scale.y / 2,
-      transform.translation.z);
+  Vector3 centre = getBodyCentre();
+  Matrix translation = MatrixTranslate(centre.x, centre.y, centre.z);
   Matrix transformMatrix = scale * rotation * translation;
   renderer.submit(DrawCommand{&playerModel.meshes[0], &playerModel.materials[0],
                               transformMatrix});
@@ -90,27 +155,26 @@ void Player::update(float dt, float gravity) {
   vel.x = vel.x * damping + moveDir.x * TOP_SPEED * (1.0f - damping);
   vel.z = vel.z * damping + moveDir.z * TOP_SPEED * (1.0f - damping);
 
-  auto blocked = [&]() { return transform.translation.y < 0; };
+  // ==== move, then push out ==== //
+  bool wasGrounded = grounded; // after the jump above, so a jump isn't snapped
 
-  transform.translation.x += vel.x * dt;
-  if (blocked()) {
-    transform.translation.x -= vel.x * dt; // how do i snap these values?
-    vel.x = 0.0f;
-  }
-  transform.translation.y += vel.y * dt - 0.5f * gravity * pow(dt, 2);
-  // After the move: the line above needs this frame's starting vel.y.
+  // y uses this frame's starting vel.y, so vel.y is updated after the move.
+  Vector3 step = {vel.x * dt, vel.y * dt - 0.5f * gravity * dt * dt,
+                  vel.z * dt};
+  transform.translation = Vector3Add(transform.translation, step);
   vel.y -= gravity * dt;
   vel.y = std::max(vel.y, -TERMINAL_VELOCITY);
-  if (blocked()) {
-    transform.translation.y = 0.0f;
-    vel.y = 0.0f;
-    grounded = true;
-  } else {
-    grounded = false;
-  }
-  transform.translation.z += vel.z * dt;
-  if (blocked()) {
-    transform.translation.z -= vel.z * dt; // how do i snap these values?
-    vel.z = 0.0f;
+  grounded = resolveCollisions();
+
+  // Walking downhill leaves the ground a little below; look for it and drop on.
+  if (wasGrounded && !grounded && vel.y <= 0.0f) {
+    Vector3 savedPos = transform.translation;
+    Vector3 savedVel = vel;
+    transform.translation.y -= GROUND_SNAP;
+    grounded = resolveCollisions();
+    if (!grounded) {
+      transform.translation = savedPos;
+      vel = savedVel;
+    }
   }
 }

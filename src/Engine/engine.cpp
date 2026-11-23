@@ -30,7 +30,7 @@ Window::Window(const EngineConfig &conf) {
 
 Engine::Engine(const EngineConfig &conf)
     : window(conf), renderer(), world(renderer), debug(player, input, world),
-      player(renderer, assets, input), input(makeInputSource()) {
+      player(renderer, assets, input, world), input(makeInputSource()) {
   camera = {
       {10.0f, 10.0f, 10.0f}, {0, 0, 0}, {0, 1, 0}, 100.0f, CAMERA_PERSPECTIVE};
 }

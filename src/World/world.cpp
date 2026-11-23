@@ -6,6 +6,10 @@
 #include <raylib.h>
 #include <raymath.h>
 
+// The hull only, in the model's own space; the wings float above head height.
+constexpr BoundingBox SHIP_HULL_BOUNDS{{-6.02f, 0.0f, -2.78f},
+                                       {6.25f, 3.53f, 2.79f}};
+
 World::World(Renderer &renderer) : renderer(renderer) {
   // note: This will stay the same each build without an srand. ok for now
   seed = rand();
@@ -20,11 +24,19 @@ World::World(Renderer &renderer) : renderer(renderer) {
     ship.materials[i].shader = renderer.getShader();
   }
 
+  // Scale, then rotate, then move, so the scale never skews or shifts the ship.
   shipTransform =
-      shipTransform *
-      MatrixRotateXYZ({5.f * DEG2RAD, 10.f * DEG2RAD, -10.f * DEG2RAD});
-  shipTransform = shipTransform * MatrixTranslate(15.f, -0.5f, 0.f);
-  shipTransform = shipTransform * MatrixScale(0.8f, 1.f, 0.8f);
+      MatrixScale(0.8f, 1.f, 0.8f) *
+      MatrixRotateXYZ({5.f * DEG2RAD, 10.f * DEG2RAD, -10.f * DEG2RAD}) *
+      MatrixTranslate(12.f, -0.5f, 0.f);
+
+  // ==== colliders ==== //
+  // The ground's top face is y = 0, so the box hangs below it.
+  Transform groundBox{{0.f, -GROUND_THICKNESS / 2, 0.f},
+                      QuaternionIdentity(),
+                      {GROUND_PLANE_SIZE, GROUND_THICKNESS, GROUND_PLANE_SIZE}};
+  colliders.push_back(GetOBBFromTransform(groundBox, Vector3One()));
+  colliders.push_back(GetOBBFromMatrix(shipTransform, SHIP_HULL_BOUNDS));
 
   Shader shader = renderer.getGroundShader();
   int seedOffsetLoc = GetShaderLocation(shader, "seedOffset");
