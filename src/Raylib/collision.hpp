@@ -6,8 +6,8 @@
 #include <raymath.h>
 
 struct OBB {
-  Vector3 center;
-  Vector3 axes[3];     // Local X, Y, Z axes (normalized)
+  Vector3 centre;
+  Vector3 axes[3];     // Local X, Y, Z axes (normalised)
   Vector3 halfExtents; // Scaled half-size along each local axis
 };
 
@@ -15,7 +15,7 @@ struct OBB {
 // Convert a Raylib Transform + base size into an OBB
 inline OBB GetOBBFromTransform(Transform t, Vector3 baseSize) {
   OBB obb;
-  obb.center = t.translation;
+  obb.centre = t.translation;
 
   // Rotate the standard world axes by the transform's quaternion
   obb.axes[0] = Vector3RotateByQuaternion(Vector3{1, 0, 0}, t.rotation);
@@ -41,7 +41,7 @@ inline OBB GetOBBFromMatrix(const Matrix &m, const BoundingBox &bounds) {
                       Vector3Subtract(Vector3Transform({0, 0, 1}, m), origin)};
 
   OBB obb;
-  obb.center      = Vector3Transform(localCentre, m);
+  obb.centre      = Vector3Transform(localCentre, m);
   obb.axes[0]     = Vector3Normalize(image[0]);
   obb.axes[1]     = Vector3Normalize(image[1]);
   obb.axes[2]     = Vector3Normalize(image[2]);
@@ -66,7 +66,7 @@ inline Contact GetContactOBB(const OBB &a, const OBB &b) {
 
   const float ha[3] = {a.halfExtents.x, a.halfExtents.y, a.halfExtents.z};
   const float hb[3] = {b.halfExtents.x, b.halfExtents.y, b.halfExtents.z};
-  const Vector3 gap = Vector3Subtract(a.center, b.center);
+  const Vector3 gap = Vector3Subtract(a.centre, b.centre);
 
   Contact best;
   best.depth = FLT_MAX;
