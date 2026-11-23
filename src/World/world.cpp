@@ -6,9 +6,14 @@
 #include <raylib.h>
 #include <raymath.h>
 
-// The hull only, in the model's own space; the wings float above head height.
+// ==== ship collider bounds, in the model's own space ==== //
 constexpr BoundingBox SHIP_HULL_BOUNDS{{-6.02f, 0.0f, -2.78f},
                                        {6.25f, 3.53f, 2.79f}};
+// Thin planks, so each wing is its own box and the space under it stays open.
+constexpr BoundingBox SHIP_WING_NEG_Z_BOUNDS{{-0.03f, 2.17f, -8.33f},
+                                             {1.97f, 2.37f, -2.33f}};
+constexpr BoundingBox SHIP_WING_POS_Z_BOUNDS{{-0.03f, 2.117f, 2.30f},
+                                             {2.00f, 2.37f, 8.33f}};
 
 World::World(Renderer &renderer) : renderer(renderer) {
   // note: This will stay the same each build without an srand. ok for now
@@ -37,6 +42,8 @@ World::World(Renderer &renderer) : renderer(renderer) {
                       {GROUND_PLANE_SIZE, GROUND_THICKNESS, GROUND_PLANE_SIZE}};
   colliders.push_back(GetOBBFromTransform(groundBox, Vector3One()));
   colliders.push_back(GetOBBFromMatrix(shipTransform, SHIP_HULL_BOUNDS));
+  colliders.push_back(GetOBBFromMatrix(shipTransform, SHIP_WING_NEG_Z_BOUNDS));
+  colliders.push_back(GetOBBFromMatrix(shipTransform, SHIP_WING_POS_Z_BOUNDS));
 
   Shader shader = renderer.getGroundShader();
   int seedOffsetLoc = GetShaderLocation(shader, "seedOffset");
