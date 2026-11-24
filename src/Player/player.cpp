@@ -46,6 +46,10 @@ bool Player::resolveCollisions() {
   const float minFloorNormalY = std::cos(MAX_WALKABLE_SLOPE);
   bool onFloor                = false;
 
+  if (transform.translation.y < -0.1f) {
+    transform.translation.y = 0.f;
+  }
+
   for (int pass = 0; pass < MAX_RESOLVE_PASSES; pass++) {
     bool anyHit = false;
 

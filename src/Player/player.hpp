@@ -17,7 +17,7 @@ private:
   // 90 would break LookAt
   static constexpr float MAX_PITCH = 89.f * DEG2RAD;
   static constexpr float TOP_SPEED = 4.5f;
-  static constexpr float TERMINAL_VELOCITY = 10.f;
+  static constexpr float TERMINAL_VELOCITY = 50.f;
   static constexpr float EYE_DROP = .3f;
   static constexpr float COLLISION_SKIN = .0005f; // metres
 
