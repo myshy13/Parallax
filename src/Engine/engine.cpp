@@ -59,7 +59,9 @@ void Engine::run() {
     world.draw();
 
     // ==== draw ==== //
-    renderer.flush(camera);
+    renderer.flush(camera, [this]() {
+        debug.drawBoxes();
+    });
 
     BeginDrawing();
     ClearBackground(BLACK);
