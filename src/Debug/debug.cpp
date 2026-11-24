@@ -5,7 +5,6 @@
 #include <numeric>
 #include <raylib.h>
 #include <raymath.h>
-#include <rlgl.h>
 
 Debug::Debug(const Player &player, const Input &input, const World &world)
     : player(player), input(input), world(world) {}
@@ -55,15 +54,11 @@ void Debug::drawBoxes() {
     return;
    // visual overlays
   constexpr Color LINES_COLOUR = WHITE;
-  auto &colliders = world.getColliders();
+  // Radius per metre of distance; about 1 px at the render resolution.
+  constexpr float LINES_RADIUS_PER_METRE = 0.005f;
+  Vector3 viewPos = player.getViewpoint().position;
 
-  rlCheckRenderBatchLimit(colliders.size() * 24);
-  
-  rlBegin(RL_LINES);
-  rlColor4ub(LINES_COLOUR.r, LINES_COLOUR.g, LINES_COLOUR.b, LINES_COLOUR.a);
-
-  for (const OBB &o : colliders) {
-    DrawOBB(o);
+  for (const OBB &o : world.getColliders()) {
+    DrawOBB(o, LINES_COLOUR, viewPos, LINES_RADIUS_PER_METRE);
   }
-  rlEnd();
 }
