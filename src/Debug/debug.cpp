@@ -1,5 +1,6 @@
 #include "debug.hpp"
 #include "Input/inputState.hpp"
+#include "Raylib/collision.hpp"
 #include <algorithm>
 #include <cmath>
 #include <deque>
@@ -7,6 +8,7 @@
 #include <numeric>
 #include <raylib.h>
 #include <raymath.h>
+#include <rlgl.h>
 #include <sstream>
 
 Debug::Debug(const Player &player, const Input &input, const World &world)
@@ -65,4 +67,22 @@ void Debug::drawOverlays(float dt) {
   drawText(TextFormat("World Day Phase: %.3f", world.getDayPhase()));
   drawText(TextFormat("World Day length: %.1f", world.getDayLength()));
   drawText(TextFormat("Current Time (24hrs): %s", worldTime.str().c_str()));
+}
+
+void Debug::drawBoxes() {
+  if (!enabled)
+    return;
+   // visual overlays
+  constexpr Color LINES_COLOUR = WHITE;
+  auto &colliders = world.getColliders();
+
+  rlCheckRenderBatchLimit(colliders.size() * 24);
+  
+  rlBegin(RL_LINES);
+  rlColor4ub(LINES_COLOUR.r, LINES_COLOUR.g, LINES_COLOUR.b, LINES_COLOUR.a);
+
+  for (const OBB &o : colliders) {
+    DrawOBB(o);
+  }
+  rlEnd();
 }

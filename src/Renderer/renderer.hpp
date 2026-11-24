@@ -2,6 +2,7 @@
 #include "Lighting/Lighting.hpp"
 #include <raylib.h>
 #include <vector>
+#include <functional>
 
 struct DrawCommand {
   const Mesh *mesh;
@@ -27,7 +28,7 @@ public:
   Renderer &operator=(const Renderer &) = delete;
 
   void submit(const DrawCommand &command) { queue.push_back(command); }
-  void flush(Camera3D &camera);
+  void flush(Camera3D &camera, std::function<void()> drawOverlays = []() {}); // draws everything in the queue
 
   // ==== getters ==== //
   const Shader &getShader() const { return shader; }

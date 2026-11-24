@@ -24,5 +24,6 @@ private:
 public:
   Debug(const Player &player, const Input &input, const World &world);
   void drawOverlays(float dt);
+  void drawBoxes();
   void update();
 };

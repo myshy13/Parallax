@@ -39,7 +39,7 @@ Renderer::~Renderer() {
   UnloadRenderTexture(target);
 }
 
-void Renderer::flush(Camera3D &camera) {
+void Renderer::flush(Camera3D &camera, std::function<void()> drawOverlays) {
   if (IsWindowResized() && GetScreenHeight() > 0 && GetScreenWidth() > 0) {
     UnloadRenderTexture(target);
     setRenderTexture();
@@ -76,6 +76,7 @@ void Renderer::flush(Camera3D &camera) {
                       static_cast<int>(batch.transforms.size()));
   }
 
+  drawOverlays();
   queue.clear();
   EndMode3D();
   EndTextureMode();
