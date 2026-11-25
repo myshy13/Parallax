@@ -53,3 +53,27 @@ inline float hashDayLength(uint32_t seed) {
 
   return (MIN_DAY_MINUTES + DAY_RANGE_MINUTES * average) * SECONDS_PER_MINUTE;
 }
+
+// ==== sky colour ==== //
+// Each channel needs its own stream, and none may repeat a day-length stream.
+constexpr uint32_t SKY_STREAM_HUE        = 0x165667b1u;
+constexpr uint32_t SKY_STREAM_SATURATION = 0x61c88647u;
+constexpr uint32_t SKY_STREAM_VALUE      = 0x7feb352du;
+constexpr float MIN_SKY_HUE              = 200.0f; // cyan is 180, so skip it
+constexpr float MAX_SKY_HUE              = 249.0f;
+constexpr float SKY_HUE_RANGE            = MAX_SKY_HUE - MIN_SKY_HUE;
+constexpr float MIN_SKY_SATURATION       = 0.25f;
+constexpr float SKY_SATURATION_RANGE     = 0.5f; // 0.25 to 0.75, never neon
+constexpr float MIN_SKY_VALUE            = 0.6f;
+constexpr float SKY_VALUE_RANGE          = 0.35f; // 0.6 to 0.95, never murky
+
+// Mid-day sky colour: azure to blue, saturation and brightness kept moderate.
+inline Color hashSkyColour(uint32_t seed) {
+  float hueUnit        = hashToUnit(mixBits(seed ^ SKY_STREAM_HUE));
+  float saturationUnit = hashToUnit(mixBits(seed ^ SKY_STREAM_SATURATION));
+  float valueUnit      = hashToUnit(mixBits(seed ^ SKY_STREAM_VALUE));
+
+  return ColorFromHSV(MIN_SKY_HUE + SKY_HUE_RANGE * hueUnit,
+                      MIN_SKY_SATURATION + SKY_SATURATION_RANGE * saturationUnit,
+                      MIN_SKY_VALUE + SKY_VALUE_RANGE * valueUnit);
+}
