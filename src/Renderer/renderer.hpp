@@ -1,8 +1,9 @@
 #pragma once
 #include "Lighting/Lighting.hpp"
+#include "Sky/sky.hpp"
+#include <functional>
 #include <raylib.h>
 #include <vector>
-#include <functional>
 
 struct DrawCommand {
   const Mesh *mesh;
@@ -16,8 +17,6 @@ struct Batch {
   std::vector<Matrix> transforms;
 };
 
-constexpr Color sunColor = (Color){255, 238, 222, 255};
-
 class Renderer {
 public:
   Renderer(); // initialises the shader
@@ -28,7 +27,9 @@ public:
   Renderer &operator=(const Renderer &) = delete;
 
   void submit(const DrawCommand &command) { queue.push_back(command); }
-  void flush(Camera3D &camera, std::function<void()> drawOverlays = []() {}); // draws everything in the queue
+  void flush(
+      Camera3D &camera, std::function<void()> drawOverlays = []() {
+      }); // draws everything in the queue
 
   // ==== getters ==== //
   const Shader &getShader() const { return shader; }
@@ -38,6 +39,8 @@ public:
 
   Lighting &getLighting() { return lighting; };
   int getSunLight() const { return sunLight; }
+
+  Sky &getSky() { return sky; }
 
 private:
   void setRenderTexture();
@@ -52,4 +55,5 @@ private:
   Shader loadInstancedShader(const char *name);
 
   Lighting lighting;
+  Sky sky;
 };

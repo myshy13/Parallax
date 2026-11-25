@@ -14,6 +14,8 @@ constexpr float DAY_RAMP_END = 0.25f; // sun height of full daylight
 constexpr float AMBIENT_DAY_CEIL = 0.3f;
 constexpr float AMBIENT_NIGHT_FLOOR = 0.15f;
 
+constexpr Color sunColour = Color{255, 238, 222, 255};
+
 class World {
 public:
   World(Renderer &renderer);
@@ -36,12 +38,16 @@ public:
   float getDayFactor() const;
 
 private:
-  uint32_t seed{};
-  float elapsed{0.f};
-  float dayLengthSecs{-1.f};
+  float dayFactor;
+  Vector3 sunDirection;
   static constexpr float GROUND_PLANE_SIZE = 120.f;
   // Thick so a fast fall can't skip through it in one step.
   static constexpr float GROUND_THICKNESS = 2.f;
+
+  uint32_t seed{};
+  float elapsed{0.f};
+  float dayLengthSecs{-1.f};
+  Color skyColour{BLACK};
 
   Renderer &renderer;
   Lighting &lighting;

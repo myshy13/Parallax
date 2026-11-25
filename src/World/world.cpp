@@ -57,20 +57,26 @@ World::World(Renderer &renderer)
   elapsed =
       0.248f *
       dayLengthSecs; // player first starts in the world just before sunrise
+
+  skyColour = hashSkyColour(seed);
 }
 
 void World::update(float dt) {
   elapsed += dt;
   elapsed = std::fmod(elapsed, dayLengthSecs);
 
-  Vector3 newSunDirection = getSunDirection();
+  dayFactor = getDayFactor();
+  sunDirection = getSunDirection();
   int sunLight = renderer.getSunLight();
   lighting.setLight(sunLight,
-                    Light{sunLight, newSunDirection,
-                          ColorBrightness(sunColor, getDayFactor() - 1.0f)});
+                    Light{sunLight, sunDirection,
+                          ColorBrightness(sunColour, dayFactor - 1.0f)});
   unsigned char ambient =
-      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, getDayFactor());
+      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, dayFactor);
   lighting.setAmbient({ambient, ambient, ambient, 255});
+  Color dimmedSkyColour = ColorBrightness(skyColour, dayFactor - 1.0f);
+  Color dimmedSunColour = ColorBrightness(sunColour, dayFactor - 1.0f);
+  renderer.getSky().update(dimmedSkyColour, getSunDirection(), dimmedSunColour);
 }
 
 void World::draw() {

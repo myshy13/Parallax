@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "Sky/sky.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
@@ -23,14 +24,14 @@ static_assert(GLSL_VERSION == 330 || GLSL_VERSION == 100,
               "Invalid glsl version");
 Renderer::Renderer()
     : shader(loadInstancedShader("shader")),
-      groundShader(loadInstancedShader("ground")) {
+      groundShader(loadInstancedShader("ground")), sky() {
 
   setRenderTexture();
 
   lighting.addShader(shader);
   lighting.addShader(groundShader);
 
-  sunLight = lighting.createLight({3, 5, -4}, sunColor); // the sun
+  sunLight = lighting.createLight({3, 5, -4}, BLACK); // the sun, set by world
 }
 
 Renderer::~Renderer() {
@@ -69,6 +70,7 @@ void Renderer::flush(Camera3D &camera, std::function<void()> drawOverlays) {
   BeginTextureMode(target);
   ClearBackground(BLACK);
   BeginMode3D(camera);
+  sky.draw(camera.position);
   lighting.upload(camera.position);
   // ==== render batches ==== //
   for (const Batch &batch : batches) {
