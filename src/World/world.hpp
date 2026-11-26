@@ -50,6 +50,8 @@ public:
   float getSkyFactor() const;
   Color getSunColour() const;
 
+  int64_t getSeed() const { return seed; };
+
 private:
   float dayFactor{};
   float skyFactor{};
