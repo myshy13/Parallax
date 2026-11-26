@@ -113,10 +113,6 @@ void World::draw() {
     renderer.submit(DrawCommand{
         &ship.meshes[i], &ship.materials[ship.meshMaterial[i]], shipTransform});
   }
-  static Mesh sphereMesh = GenMeshSphere(3.0f, 16, 16);
-  static Model sphere = LoadModelFromMesh(sphereMesh);
-  renderer.submit(
-      DrawCommand{&sphere.meshes[0], &sphere.materials[0], MatrixIdentity()});
 }
 
 float World::getDayFactor() const {
