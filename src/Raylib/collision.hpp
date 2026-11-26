@@ -4,7 +4,6 @@
 #include <cmath>
 #include <raylib.h>
 #include <raymath.h>
-#include <rlgl.h>
 
 struct OBB {
   Vector3 centre;
@@ -18,8 +17,21 @@ static const int OBB_EDGES[12][2] = {
     {0, 4}, {1, 5}, {2, 6}, {3, 7}  // Connecting struts
 };
 
-// Important: Must use rlBegin(RL_LINES)
-inline void DrawOBB(const OBB &obb) {
+// Few sides is enough for a debug edge; a square beam still reads as a line.
+constexpr int OBB_EDGE_SIDES = 4;
+
+// Nearest point to p on the segment from a to b.
+inline Vector3 ClosestPointOnSegment(Vector3 a, Vector3 b, Vector3 p) {
+  Vector3 ab = Vector3Subtract(b, a);
+  float t =
+      Vector3DotProduct(Vector3Subtract(p, a), ab) / Vector3DotProduct(ab, ab);
+  return Vector3Add(a, Vector3Scale(ab, Clamp(t, 0.0f, 1.0f)));
+}
+
+// Edges are cylinders (wide lines aren't portable), sized by distance from
+// viewPos so they keep about the same thickness on screen.
+inline void DrawOBB(const OBB &obb, Color colour, Vector3 viewPos,
+                    float radiusPerMetre) {
   Vector3 extents[3] = {Vector3Scale(obb.axes[0], obb.halfExtents.x),
                         Vector3Scale(obb.axes[1], obb.halfExtents.y),
                         Vector3Scale(obb.axes[2], obb.halfExtents.z)};
@@ -36,12 +48,12 @@ inline void DrawOBB(const OBB &obb) {
     corners[i] = corner;
   }
 
-  // Submit 24 vertices (12 line segments)
   for (int e = 0; e < 12; e++) {
     Vector3 start = corners[OBB_EDGES[e][0]];
     Vector3 end = corners[OBB_EDGES[e][1]];
-    rlVertex3f(start.x, start.y, start.z);
-    rlVertex3f(end.x, end.y, end.z);
+    Vector3 nearest = ClosestPointOnSegment(start, end, viewPos);
+    float radius = Vector3Distance(nearest, viewPos) * radiusPerMetre;
+    DrawCylinderEx(start, end, radius, radius, OBB_EDGE_SIDES, colour);
   }
 }
 
