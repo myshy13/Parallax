@@ -55,3 +55,5 @@ void Sky::draw(Vector3 viewpointPos) {
   rlEnableBackfaceCulling();
   rlEnableDepthMask();
 }
+
+void Sky::setCloudOrigin(Vector2 origin) { cloudOffset = origin; }

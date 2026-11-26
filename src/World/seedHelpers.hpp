@@ -77,3 +77,17 @@ inline Color hashSkyColour(uint32_t seed) {
                       MIN_SKY_SATURATION + SKY_SATURATION_RANGE * saturationUnit,
                       MIN_SKY_VALUE + SKY_VALUE_RANGE * valueUnit);
 }
+
+// ==== cloud origin ==== //
+// x and y need different streams, or every origin lies on the diagonal x == y.
+constexpr uint32_t CLOUD_STREAM_X = 0xbb67ae85u;
+constexpr uint32_t CLOUD_STREAM_Y = 0xa54ff53au;
+
+// Where the clouds start in noise units; same 0..100 range as hashSeed.
+inline Vector2 hashCloudOrigin(uint32_t seed) {
+  uint32_t hashX = mixBits(seed ^ CLOUD_STREAM_X);
+  uint32_t hashY = mixBits(seed ^ CLOUD_STREAM_Y);
+
+  return Vector2{static_cast<float>(hashX % OFFSET_STEPS) / OFFSET_DIVISOR,
+                 static_cast<float>(hashY % OFFSET_STEPS) / OFFSET_DIVISOR};
+}

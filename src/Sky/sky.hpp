@@ -21,6 +21,8 @@ public:
               Vector3 sunDirection, Color sunColour);
   void draw(Vector3 viewpointPos);
 
+  void setCloudOrigin(Vector2 origin);
+
 private:
   Shader skyShader;
 

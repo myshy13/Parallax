@@ -59,6 +59,8 @@ World::World(Renderer &renderer)
       dayLengthSecs; // player first starts in the world just before sunrise
 
   skyColour = hashSkyColour(seed);
+
+  renderer.getSky().setCloudOrigin(hashCloudOrigin(seed));
 }
 
 void World::update(float dt) {
