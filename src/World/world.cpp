@@ -64,19 +64,46 @@ World::World(Renderer &renderer)
 void World::update(float dt) {
   elapsed += dt;
   elapsed = std::fmod(elapsed, dayLengthSecs);
-
   dayFactor = getDayFactor();
   sunDirection = getSunDirection();
+  skyFactor = getSkyFactor();
+  Color tintedSun = getSunColour();
+
   int sunLight = renderer.getSunLight();
   lighting.setLight(sunLight,
                     Light{sunLight, sunDirection,
-                          ColorBrightness(sunColour, dayFactor - 1.0f)});
+                          ColorBrightness(tintedSun, dayFactor - 1.0f)});
   unsigned char ambient =
-      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, dayFactor);
+      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, skyFactor);
   lighting.setAmbient({ambient, ambient, ambient, 255});
-  Color dimmedSkyColour = ColorBrightness(skyColour, dayFactor - 1.0f);
-  Color dimmedSunColour = ColorBrightness(sunColour, dayFactor - 1.0f);
-  renderer.getSky().update(dimmedSkyColour, getSunDirection(), dimmedSunColour);
+
+  // The sky follows skyFactor (twilight); direct sun on the ground follows
+  // dayFactor.
+  Color dimmedSkyColour = ColorBrightness(skyColour, skyFactor - 1.0f);
+  Color dimmedSunColour = ColorBrightness(tintedSun, skyFactor - 1.0f);
+  Color haze = ColorBrightness(WHITE, skyFactor - 1.0f);
+  Color horizonColour = ColorLerp(dimmedSkyColour, haze, HORIZON_HAZE);
+  renderer.getSky().update(dt, dimmedSkyColour, horizonColour, sunDirection,
+                           dimmedSunColour);
+}
+
+Color World::getSunColour() const {
+  Vector3 skyColourVector = colourToVector(skyColour);
+  Vector3 sunColourVector = colourToVector(SUN_COLOUR);
+
+  // Per-channel extinction: channels the sky is bright in leave the beam.
+  Vector3 beta = Vector3Divide(skyColourVector, sunColourVector);
+
+  // Extra air the beam crosses compared with the sun at the zenith.
+  float height = Clamp(getSunDirection().y, 0.0f, 1.0f);
+  float extraAirmass =
+      1.0f / (height + AIRMASS_OFFSET) - 1.0f / (1.0f + AIRMASS_OFFSET);
+
+  Vector3 exponent = Vector3Scale(beta, -SUN_TINT_STRENGTH * extraAirmass);
+  Vector3 tint = {expf(exponent.x), expf(exponent.y), expf(exponent.z)};
+  Vector3 tinted = Vector3Multiply(sunColourVector, tint);
+
+  return ColorFromNormalized({tinted.x, tinted.y, tinted.z, 1.0f});
 }
 
 void World::draw() {
@@ -96,6 +123,15 @@ float World::getDayFactor() const {
   float height = getSunDirection().y;
   float t = Clamp((height - DAY_RAMP_START) / (DAY_RAMP_END - DAY_RAMP_START),
                   0.0f, 1.0f);
+
+  return t * t * (3.0f - 2.0f * t);
+}
+
+float World::getSkyFactor() const {
+  float height = getSunDirection().y;
+  float t =
+      Clamp((height - SKY_FACTOR_START) / (SKY_FACTOR_END - SKY_FACTOR_START),
+            0.0f, 1.0f);
 
   return t * t * (3.0f - 2.0f * t);
 }
