@@ -7,6 +7,7 @@
 #include <raylib.h>
 
 constexpr int AVERAGE_FRAMETIME_COUNT = 30;
+constexpr float SECS_PER_DAY = 86400.0f;
 
 class Debug {
 private:

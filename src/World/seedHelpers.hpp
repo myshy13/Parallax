@@ -53,3 +53,41 @@ inline float hashDayLength(uint32_t seed) {
 
   return (MIN_DAY_MINUTES + DAY_RANGE_MINUTES * average) * SECONDS_PER_MINUTE;
 }
+
+// ==== sky colour ==== //
+// Each channel needs its own stream, and none may repeat a day-length stream.
+constexpr uint32_t SKY_STREAM_HUE        = 0x165667b1u;
+constexpr uint32_t SKY_STREAM_SATURATION = 0x61c88647u;
+constexpr uint32_t SKY_STREAM_VALUE      = 0x7feb352du;
+constexpr float MIN_SKY_HUE              = 200.0f; // cyan is 180, so skip it
+constexpr float MAX_SKY_HUE              = 249.0f;
+constexpr float SKY_HUE_RANGE            = MAX_SKY_HUE - MIN_SKY_HUE;
+constexpr float MIN_SKY_SATURATION       = 0.25f;
+constexpr float SKY_SATURATION_RANGE     = 0.5f; // 0.25 to 0.75, never neon
+constexpr float MIN_SKY_VALUE            = 0.6f;
+constexpr float SKY_VALUE_RANGE          = 0.35f; // 0.6 to 0.95, never murky
+
+// Mid-day sky colour: azure to blue, saturation and brightness kept moderate.
+inline Color hashSkyColour(uint32_t seed) {
+  float hueUnit        = hashToUnit(mixBits(seed ^ SKY_STREAM_HUE));
+  float saturationUnit = hashToUnit(mixBits(seed ^ SKY_STREAM_SATURATION));
+  float valueUnit      = hashToUnit(mixBits(seed ^ SKY_STREAM_VALUE));
+
+  return ColorFromHSV(MIN_SKY_HUE + SKY_HUE_RANGE * hueUnit,
+                      MIN_SKY_SATURATION + SKY_SATURATION_RANGE * saturationUnit,
+                      MIN_SKY_VALUE + SKY_VALUE_RANGE * valueUnit);
+}
+
+// ==== cloud origin ==== //
+// x and y need different streams, or every origin lies on the diagonal x == y.
+constexpr uint32_t CLOUD_STREAM_X = 0xbb67ae85u;
+constexpr uint32_t CLOUD_STREAM_Y = 0xa54ff53au;
+
+// Where the clouds start in noise units; same 0..100 range as hashSeed.
+inline Vector2 hashCloudOrigin(uint32_t seed) {
+  uint32_t hashX = mixBits(seed ^ CLOUD_STREAM_X);
+  uint32_t hashY = mixBits(seed ^ CLOUD_STREAM_Y);
+
+  return Vector2{static_cast<float>(hashX % OFFSET_STEPS) / OFFSET_DIVISOR,
+                 static_cast<float>(hashY % OFFSET_STEPS) / OFFSET_DIVISOR};
+}

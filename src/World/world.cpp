@@ -1,7 +1,9 @@
 #include "world.hpp"
+#include "Lighting/light.hpp"
 #include "Renderer/renderer.hpp"
 #include "World/seedHelpers.hpp"
 #include "rlgl.h"
+#include <cmath>
 #include <cstdlib>
 #include <raylib.h>
 #include <raymath.h>
@@ -15,8 +17,8 @@ constexpr BoundingBox SHIP_WING_NEG_Z_BOUNDS{{-0.03f, 2.17f, -8.33f},
 constexpr BoundingBox SHIP_WING_POS_Z_BOUNDS{{-0.03f, 2.117f, 2.30f},
                                              {2.00f, 2.37f, 8.33f}};
 
-World::World(Renderer &renderer) : renderer(renderer) {
-  // note: This will stay the same each build without an srand. ok for now
+World::World(Renderer &renderer)
+    : renderer(renderer), lighting(renderer.getLighting()) {
   seed = rand();
   Mesh groundPlaneMesh =
       GenMeshPlane(GROUND_PLANE_SIZE, GROUND_PLANE_SIZE, 1, 1);
@@ -52,12 +54,58 @@ World::World(Renderer &renderer) : renderer(renderer) {
   SetShaderValue(shader, seedOffsetLoc, &seedOffset, SHADER_UNIFORM_VEC2);
 
   dayLengthSecs = hashDayLength(seed);
-  elapsed = 0.2f * dayLengthSecs;
+  elapsed =
+      0.248f *
+      dayLengthSecs; // player first starts in the world just before sunrise
+
+  skyColour = hashSkyColour(seed);
+
+  renderer.getSky().setCloudOrigin(hashCloudOrigin(seed));
 }
 
 void World::update(float dt) {
   elapsed += dt;
-  elapsed = fmod(elapsed, dayLengthSecs);
+  elapsed = std::fmod(elapsed, dayLengthSecs);
+  dayFactor = getDayFactor();
+  sunDirection = getSunDirection();
+  skyFactor = getSkyFactor();
+  Color tintedSun = getSunColour();
+
+  int sunLight = renderer.getSunLight();
+  lighting.setLight(sunLight,
+                    Light{sunLight, sunDirection,
+                          ColorBrightness(tintedSun, dayFactor - 1.0f)});
+  unsigned char ambient =
+      255 * std::lerp(AMBIENT_NIGHT_FLOOR, AMBIENT_DAY_CEIL, skyFactor);
+  lighting.setAmbient({ambient, ambient, ambient, 255});
+
+  // The sky follows skyFactor (twilight); direct sun on the ground follows
+  // dayFactor.
+  Color dimmedSkyColour = ColorBrightness(skyColour, skyFactor - 1.0f);
+  Color dimmedSunColour = ColorBrightness(tintedSun, skyFactor - 1.0f);
+  Color haze = ColorBrightness(WHITE, skyFactor - 1.0f);
+  Color horizonColour = ColorLerp(dimmedSkyColour, haze, HORIZON_HAZE);
+  renderer.getSky().update(dt, dimmedSkyColour, horizonColour, sunDirection,
+                           dimmedSunColour);
+}
+
+Color World::getSunColour() const {
+  Vector3 skyColourVector = colourToVector(skyColour);
+  Vector3 sunColourVector = colourToVector(SUN_COLOUR);
+
+  // Per-channel extinction: channels the sky is bright in leave the beam.
+  Vector3 beta = Vector3Divide(skyColourVector, sunColourVector);
+
+  // Extra air the beam crosses compared with the sun at the zenith.
+  float height = Clamp(getSunDirection().y, 0.0f, 1.0f);
+  float extraAirmass =
+      1.0f / (height + AIRMASS_OFFSET) - 1.0f / (1.0f + AIRMASS_OFFSET);
+
+  Vector3 exponent = Vector3Scale(beta, -SUN_TINT_STRENGTH * extraAirmass);
+  Vector3 tint = {expf(exponent.x), expf(exponent.y), expf(exponent.z)};
+  Vector3 tinted = Vector3Multiply(sunColourVector, tint);
+
+  return ColorFromNormalized({tinted.x, tinted.y, tinted.z, 1.0f});
 }
 
 void World::draw() {
@@ -67,6 +115,23 @@ void World::draw() {
     renderer.submit(DrawCommand{
         &ship.meshes[i], &ship.materials[ship.meshMaterial[i]], shipTransform});
   }
+}
+
+float World::getDayFactor() const {
+  float height = getSunDirection().y;
+  float t = Clamp((height - DAY_RAMP_START) / (DAY_RAMP_END - DAY_RAMP_START),
+                  0.0f, 1.0f);
+
+  return t * t * (3.0f - 2.0f * t);
+}
+
+float World::getSkyFactor() const {
+  float height = getSunDirection().y;
+  float t =
+      Clamp((height - SKY_FACTOR_START) / (SKY_FACTOR_END - SKY_FACTOR_START),
+            0.0f, 1.0f);
+
+  return t * t * (3.0f - 2.0f * t);
 }
 
 World::~World() {
@@ -79,4 +144,17 @@ World::~World() {
 
   UnloadModel(ship);
   UnloadModel(ground);
+}
+
+constexpr float TAU = 2.f * PI;
+constexpr float SUN_MODIFIER = .2f;
+
+Vector3 World::getSunDirection() const {
+  float phase = getDayPhase();
+  float angle = (0.5 - phase) * TAU;
+
+  Vector3 vector = {std::sinf(angle), std::cosf(angle), SUN_MODIFIER};
+  vector = Vector3Normalize(vector);
+
+  return vector;
 }
